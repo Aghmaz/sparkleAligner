@@ -5,6 +5,9 @@ const COLORS: {[key:string]:string} = {
     PLACEHOLDER_COLOR: '#8B8B8B',
     GRAY_LIGHT: 'lightgray',
     ORANGE: 'orange',
+    BLUE_LIGHT:'#42afd2',
+    SKYBLUE:'#a4bfd6',
+    BLACK_LIGHT:'#7e7e7e'
   };
   
   export default COLORS;
