@@ -1,13 +1,26 @@
 import React, {useState} from 'react';
-import {View, Text, Image, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ImageSourcePropType,
+} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Shadow} from 'react-native-shadow-2';
 import COLORS from '../constraints/colors';
 
-const FirstScreen = () => {
+interface OnboardingItem {
+  image: ImageSourcePropType;
+  title: string;
+  description: string;
+}
+
+const FirstScreen: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const onboardingData = [
+  const onboardingData: OnboardingItem[] = [
     {
       image: require('../assets/images/onboard/Profile.jpeg'),
       title: 'Get Your Treatment Plan',
@@ -28,7 +41,7 @@ const FirstScreen = () => {
     },
   ];
 
-  const handleNextScreen = () => {
+  const handleNextScreen = (): void => {
     if (currentIndex < onboardingData.length - 1) {
       setCurrentIndex(currentIndex + 1);
     }
@@ -102,7 +115,7 @@ const styles = StyleSheet.create({
     width: '40%',
     textAlign: 'center',
     alignSelf: 'center',
-    fontFamily:'20db'
+    fontFamily: '20db',
   },
   shadowContainer: {
     position: 'absolute',
@@ -132,14 +145,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: COLORS.BLUE_LIGHT,
     textAlign: 'center',
-    fontFamily:'Roboto-Medium'
+    fontFamily: 'Roboto-Medium',
   },
   cardDescription: {
     fontSize: 14,
     color: COLORS.BLACK_LIGHT,
     lineHeight: 20,
     textAlign: 'center',
-    fontFamily:'Roboto-Regular'
+    fontFamily: 'Roboto-Regular',
   },
   paginationContainer: {
     alignItems: 'center',
@@ -171,7 +184,7 @@ const styles = StyleSheet.create({
   getStartedText: {
     fontSize: 15,
     color: COLORS.WHITE,
-    fontFamily:'Roboto-Regular',
+    fontFamily: 'Roboto-Regular',
   },
 });
 export default FirstScreen;
