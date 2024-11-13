@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -57,9 +57,9 @@ const OnBoardScreen: React.FC = () => {
     // }
     navigation.navigate('Login');
   };
-  const handleSnapToItem = useCallback((index: number) => {
+  const handleSnapToItem = (index: number) => {
     setCurrentIndex(index);
-  }, []);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -79,7 +79,7 @@ const OnBoardScreen: React.FC = () => {
         height={screenWidth}
         data={onboardingData}
         renderItem={({item}) => (
-          <View style={{paddingTop: 170}}>
+          <View style={{paddingTop: 120}}>
             <Shadow distance={5} containerStyle={styles.shadowContainer}>
               <View style={styles.cardContainer}>
                 <Image

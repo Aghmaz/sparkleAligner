@@ -1,13 +1,52 @@
-import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import COLORS from '../../constraints/colors';
-import {Shadow} from 'react-native-shadow-2';
+import React, {useState} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Modal,
+  ScrollView,
+} from 'react-native';
 import {AnimatedCircularProgress} from 'react-native-circular-progress';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {Shadow} from 'react-native-shadow-2';
+import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
 
-const TimerScreen = () => {
-  const fillPercentage = 40;
+const TimerScreen: React.FC = () => {
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [selectedAligner, setSelectedAligner] = useState<number>(0);
+  const [daysLeft, setDaysLeft] = useState<number>(13);
+  const [displayedAligner, setDisplayedAligner] =
+    useState<string>('Aligner #1');
+
+  const fillPercentage: number = 40;
+
+  const toggleModal = (): void => {
+    setModalVisible(!modalVisible);
+  };
+
+  const alignerTexts: string[] = Array.from(
+    {length: 30},
+    (_, index) => `Aligner #${index + 1}`,
+  );
+
+  const handleAlignerPress = (index: number): void => {
+    setSelectedAligner(index);
+  };
+
+  const handleConfirm = (): void => {
+    const alignerText = alignerTexts[selectedAligner];
+    const days = calculateDays(selectedAligner);
+    setDisplayedAligner(alignerText);
+    setDaysLeft(days);
+    setModalVisible(false);
+  };
+
+  const calculateDays = (alignerIndex: number): number => {
+    return (alignerIndex + 1) * 13;
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View>
@@ -16,10 +55,15 @@ const TimerScreen = () => {
           <Text style={styles.headerTitle}>Timer</Text>
           <Icons.FAQ />
         </View>
-        <View style={styles.daysLeftContainer}>
+        <TouchableOpacity
+          onPress={toggleModal}
+          activeOpacity={0.8}
+          style={styles.daysLeftContainer}>
           <Icons.SYNC />
-          <Text style={styles.daysLeftText}>13 more days on Aligner #1</Text>
-        </View>
+          <Text style={styles.daysLeftText}>
+            {daysLeft} more days on {displayedAligner}
+          </Text>
+        </TouchableOpacity>
         <View style={styles.circularProgressContainer}>
           <AnimatedCircularProgress
             size={340}
@@ -33,7 +77,7 @@ const TimerScreen = () => {
                 <Text style={styles.notWearingText}>Not Wearing</Text>
                 <View style={styles.alignInfoContainer}>
                   <Icons.ALIGN />
-                  <Text style={styles.alignText}>SPARKLE ALIGN</Text>
+                  <Text style={styles.appName}>SPARKLE ALIGN</Text>
                 </View>
                 <Text style={styles.timerText}>10:25</Text>
                 <Text style={styles.outText}>Out 00 00</Text>
@@ -57,6 +101,53 @@ const TimerScreen = () => {
           <Icons.WRENCH />
         </View>
       </Shadow>
+      <Modal transparent={true} animationType="slide" visible={modalVisible}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>I'm currently wearing...</Text>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={styles.scrollView}>
+              {alignerTexts.map((alignerText, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => handleAlignerPress(index)}
+                  style={[
+                    styles.alignTextContainer,
+                    selectedAligner === index && styles.selectedAligner,
+                    index === alignerTexts.length - 1 && {marginBottom: 120},
+                  ]}>
+                  <Text
+                    style={[
+                      styles.alignText,
+                      selectedAligner === index && styles.selectedAlignerText,
+                      {
+                        opacity:
+                          selectedAligner === index ||
+                          selectedAligner === index + 1 ||
+                          selectedAligner === index - 1
+                            ? 1
+                            : 0.5,
+                      },
+                    ]}>
+                    {alignerText}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <View style={styles.btnsConatiner}>
+              <Text
+                onPress={() => setModalVisible(!modalVisible)}
+                style={styles.btnText}>
+                CANCEL
+              </Text>
+              <Text onPress={handleConfirm} style={styles.btnText}>
+                CONFIRM
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -115,7 +206,7 @@ const styles = StyleSheet.create({
     gap: 5,
     paddingTop: 40,
   },
-  alignText: {
+  appName: {
     fontFamily: 'Roboto-Bold',
     fontSize: 17,
     color: COLORS.BLUE_LIGHT,
@@ -175,5 +266,63 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.SKY_LIGHT,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '85%',
+    backgroundColor: COLORS.WHITE,
+    borderRadius: 25,
+  },
+  modalTitle: {
+    fontFamily: 'Roboto-Medium',
+    fontSize: 20,
+    color: COLORS.BLACK,
+    borderBottomWidth: 1,
+    borderColor: COLORS.GRAY_LIGHT,
+    paddingBottom: 15,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  scrollView: {
+    height: 170,
+    paddingTop: 70,
+  },
+  alignTextContainer: {
+    alignItems: 'center',
+  },
+  alignText: {
+    fontFamily: 'Roboto-Medium',
+    fontSize: 20,
+    color: COLORS.GRAY_DARK,
+    paddingBottom: 10,
+  },
+  selectedAligner: {
+    backgroundColor: COLORS.GRAY,
+    paddingTop: 7,
+    marginHorizontal: 10,
+    borderRadius: 10,
+  },
+  selectedAlignerText: {
+    color: COLORS.BLACK,
+  },
+  btnsConatiner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 30,
+    padding: 30,
+    justifyContent: 'flex-end',
+    borderTopWidth: 1,
+    borderColor: COLORS.GRAY_LIGHT,
+    marginTop: 15,
+  },
+  btnText: {
+    fontFamily: 'Roboto-Bold',
+    fontSize: 14,
+    color: COLORS.BLUE_DARK,
   },
 });

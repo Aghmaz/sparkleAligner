@@ -6,6 +6,7 @@ import NOTIFICATION from '../assets/icons/notification.svg';
 import TIMERA from '../assets/icons/timerA.svg';
 import CALENDERA from '../assets/icons/calenderA.svg';
 import CAMERAA from '../assets/icons/cameraA.svg';
+import CAMERASKYBLUE from '../assets/icons/cameraSKYBLUE.svg';
 import DASHBOARDA from '../assets/icons/dashboardA.svg';
 import NOTIFICATIONA from '../assets/icons/notificationA.svg';
 import MENU from '../assets/icons/menu.svg';
@@ -13,6 +14,7 @@ import FAQ from '../assets/icons/faq.svg';
 import SYNC from '../assets/icons/sync.svg';
 import WRENCH from '../assets/icons/wrench.svg';
 import ALIGN from '../assets/icons/align.svg';
+import LIBRARY from '../assets/icons/library.svg';
 
 
 export default {
@@ -24,13 +26,15 @@ export default {
   TIMERA,
   CALENDERA,
   CAMERAA,
+  CAMERASKYBLUE,
   DASHBOARDA,
   NOTIFICATIONA,
   MENU,
   FAQ,
   SYNC,
   WRENCH,
-  ALIGN
+  ALIGN,
+  LIBRARY
 }
 
 

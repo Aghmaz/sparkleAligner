@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Dimensions,
+  Linking,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -35,6 +36,11 @@ type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const handleLogin = (value: {email: string; password: string}) => {
     navigation.navigate('Home');
+  };
+  const openLink = (url: string) => {
+    Linking.openURL(url).catch(err =>
+      console.error('Failed to open link: ', err),
+    );
   };
 
   return (
@@ -102,6 +108,22 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
                       onPress={handleSubmit as any}>
                       <Text style={styles.loginButtonText}>Log In</Text>
                     </TouchableOpacity>
+                    <Text style={styles.footerText}>
+                      By proceeding, you agree to our
+                    </Text>
+                    <View style={styles.termsLinkContainer}>
+                      <Text
+                        onPress={() => openLink('http://www.crypthonlab.com')}
+                        style={styles.termsLinkText}>
+                        Terms & Conditions
+                      </Text>
+                      <Text style={styles.termsDividerText}>and</Text>
+                      <Text
+                        onPress={() => openLink('http://www.crypthonlab.com')}
+                        style={styles.termsLinkText}>
+                        Privacy Policy
+                      </Text>
+                    </View>
                   </>
                 )}
               </Formik>
@@ -126,7 +148,7 @@ const styles = StyleSheet.create({
   },
   overlayTextContainer: {
     position: 'absolute',
-    top: '31%',
+    top: '28%',
     alignSelf: 'center',
     gap: 5,
   },
@@ -192,6 +214,28 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: COLORS.WHITE,
     fontFamily: 'Roboto-Regular',
+  },
+  footerText: {
+    fontFamily: 'Roboto-Regular',
+    fontSize: 15,
+    color: COLORS.GRAY_DARK,
+    textAlign: 'center',
+    paddingTop: 5,
+  },
+  termsLinkContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  termsLinkText: {
+    fontFamily: 'Roboto-Regular',
+    fontSize: 15,
+    color: COLORS.BLUE_LIGHT,
+  },
+  termsDividerText: {
+    fontFamily: 'Roboto-Regular',
+    fontSize: 15,
+    color: COLORS.GRAY_DARK,
   },
 });
 
