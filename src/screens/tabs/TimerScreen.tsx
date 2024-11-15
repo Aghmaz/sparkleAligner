@@ -21,13 +21,24 @@ const TimerScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [isSettingOpen, setIsSettingOpen] = useState<boolean>(false);
   const [selectedAligner, setSelectedAligner] = useState<number>(0);
-  const [daysLeft, setDaysLeft] = useState<number>(13);
+  const [minutesLeft, setMinutesLeft] = useState<number>(2);
   const navigation = useNavigation<TimerScreenNavigationProp>();
   const [displayedAligner, setDisplayedAligner] =
     useState<string>('Aligner #1');
+  const [currentTime, setCurrentTime] = useState<string>(
+    new Date().toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+    }),
+  );
   const scrollViewRef = useRef<ScrollView>(null);
 
   const fillPercentage: number = 40;
+  const totalMinutes: number = 60;
+  const alignerTimeIncrement: number = 2;
+
+  const [remainingMinutes, setRemainingMinutes] =
+    useState<number>(totalMinutes);
 
   const toggleModal = (): void => {
     setModalVisible(!modalVisible);
@@ -47,14 +58,14 @@ const TimerScreen: React.FC = () => {
 
   const handleConfirm = (): void => {
     const alignerText = alignerTexts[selectedAligner];
-    const days = calculateDays(selectedAligner);
+    const minutes = calculateMinutes(selectedAligner);
     setDisplayedAligner(alignerText);
-    setDaysLeft(days);
+    setMinutesLeft(minutes);
     setModalVisible(false);
   };
 
-  const calculateDays = (alignerIndex: number): number => {
-    return (alignerIndex + 1) * 13;
+  const calculateMinutes = (alignerIndex: number): number => {
+    return (alignerIndex + 1) * alignerTimeIncrement;
   };
 
   useEffect(() => {
@@ -65,6 +76,39 @@ const TimerScreen: React.FC = () => {
       });
     }
   }, [modalVisible]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      const formattedTime = now.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+      setCurrentTime(formattedTime);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const timeDecrement = setInterval(() => {
+      if (minutesLeft > 1) {
+        setMinutesLeft(prev => prev - 1);
+      } else {
+        if (selectedAligner < 29) {
+          const nextAligner = selectedAligner + 1;
+          const nextAlignerText = alignerTexts[nextAligner];
+          const nextMinutes = calculateMinutes(nextAligner);
+          setSelectedAligner(nextAligner);
+          setDisplayedAligner(nextAlignerText);
+          setMinutesLeft(nextMinutes);
+          setRemainingMinutes(totalMinutes - nextAligner * 2);
+        }
+      }
+    }, 60000);
+
+    return () => clearInterval(timeDecrement);
+  }, [minutesLeft, selectedAligner]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -110,7 +154,8 @@ const TimerScreen: React.FC = () => {
               style={styles.daysLeftContainer}>
               <Icons.SYNC />
               <Text style={styles.daysLeftText}>
-                {daysLeft} more days on {displayedAligner}
+                {minutesLeft} more {minutesLeft === 1 ? 'minute' : 'minutes'} on{' '}
+                {displayedAligner}
               </Text>
             </TouchableOpacity>
             <View style={styles.circularProgressContainer}>
@@ -130,8 +175,8 @@ const TimerScreen: React.FC = () => {
                       <Icons.ALIGN />
                       <Text style={styles.appName}>SPARKLE ALIGN</Text>
                     </View>
-                    <Text style={styles.timerText}>10:25</Text>
-                    <Text style={styles.outText}>Out 00 00</Text>
+                    <Text style={styles.timerText}>00:00</Text>
+                    <Text style={styles.outText}>Out {currentTime}</Text>
                   </View>
                 )}
               />
@@ -143,7 +188,7 @@ const TimerScreen: React.FC = () => {
             <View style={styles.daysToSmileContainer}>
               <Icons.CALENDER />
               <Text style={styles.daysToSmileText}>
-                419 days to a perfect smile!
+                {remainingMinutes} minutes to a perfect smile!
               </Text>
             </View>
           </View>
@@ -277,7 +322,7 @@ const styles = StyleSheet.create({
   },
   timerText: {
     fontFamily: 'Roboto-Bold',
-    fontSize: 70,
+    fontSize: 45,
     color: COLORS.BLACK_LIGHT,
   },
   outText: {

@@ -29,7 +29,13 @@ import SHARE from '../assets/icons/share.svg';
 import DOWNARROW from '../assets/icons/down.svg';
 import TICK from '../assets/icons/tick.svg';
 import CROSS from '../assets/icons/cross.svg';
+import CROSSWHITE from '../assets/icons/crossWhite.svg';
 import EDIT from '../assets/icons/edit.svg';
+import TEETH from '../assets/icons/tooth.svg';
+import INFO from '../assets/icons/info.svg';
+import THEME from '../assets/icons/theme.svg';
+import SOUND from '../assets/icons/sound.svg';
+import PRIVACY_POLICY from '../assets/icons/privacy-policy.svg';
 
 export default {
   TIMER,
@@ -63,5 +69,11 @@ export default {
   DOWNARROW,
   TICK,
   CROSS,
-  EDIT
+  CROSSWHITE,
+  EDIT,
+  TEETH,
+  INFO,
+  THEME,
+  SOUND,
+  PRIVACY_POLICY
 };

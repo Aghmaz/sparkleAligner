@@ -11,6 +11,8 @@ import TimerScreen from '../screens/tabs/TimerScreen';
 import CalenderScreen from '../screens/tabs/CalenderScreen';
 import {useNavigation} from '@react-navigation/native';
 import AdjustCurrentTreatment from '../screens/drawer/AdjustCurrentTreatment';
+import StartANewTreatment from '../screens/drawer/StartANewTreatment';
+import Settings from '../screens/drawer/Settings';
 import CameraScreen from '../screens/tabs/CameraScreen';
 import DashboardScreen from '../screens/tabs/DashboardScreen';
 import Icons from '../assets/icons';
@@ -118,15 +120,22 @@ const DrawerContent = () => {
         <Icons.ALIGN height={40} width={40} />
         <Text style={styles.drawerHeaderText}>SPARKLE ALIGN</Text>
       </View>
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('Drawer', {screen: 'AdjustCurrentTreatment'})
-        }
-        activeOpacity={0.8}
-        style={styles.drawerSection}>
-        <DrawerItem icon={Icons.ADJUST} text="Adjust Current Treatment" />
-        <DrawerItem icon={Icons.FOLDER} text="Start a New Treatment" />
-      </TouchableOpacity>
+      <View style={styles.drawerSection}>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('Drawer', {screen: 'AdjustCurrentTreatment'})
+          }
+          activeOpacity={0.8}>
+          <DrawerItem icon={Icons.ADJUST} text="Adjust Current Treatment" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('Drawer', {screen: 'StartANewTreatment'})
+          }
+          activeOpacity={0.8}>
+          <DrawerItem icon={Icons.FOLDER} text="Start a New Treatment" />
+        </TouchableOpacity>
+      </View>
       <View style={styles.drawerSection}>
         <DrawerItem icon={Icons.MSG} text="Tell a Friend" />
         <DrawerItem icon={Icons.STAR} text="Review App" />
@@ -138,7 +147,11 @@ const DrawerContent = () => {
       <View style={styles.drawerSection}>
         <DrawerItem icon={Icons.QNA} text="Frequently Asked Questions" />
         <DrawerItem icon={Icons.CLOUD} text="Backup to Cloud" />
-        <DrawerItem icon={Icons.SETTINGS} text="Settings" />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Drawer', {screen: 'Settings'})}
+          activeOpacity={0.8}>
+          <DrawerItem icon={Icons.SETTINGS} text="Settings" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -175,6 +188,20 @@ const DrawerNavigation = () => {
       <Drawer.Screen
         name="AdjustCurrentTreatment"
         component={AdjustCurrentTreatment}
+        options={{
+          drawerItemStyle: {height: 0},
+        }}
+      />
+      <Drawer.Screen
+        name="Settings"
+        component={Settings}
+        options={{
+          drawerItemStyle: {height: 0},
+        }}
+      />
+      <Drawer.Screen
+        name="StartANewTreatment"
+        component={StartANewTreatment}
         options={{
           drawerItemStyle: {height: 0},
         }}
