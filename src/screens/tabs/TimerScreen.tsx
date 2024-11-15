@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -8,22 +8,32 @@ import {
   ScrollView,
 } from 'react-native';
 import {AnimatedCircularProgress} from 'react-native-circular-progress';
+import {DrawerNavigationProp} from '@react-navigation/drawer';
+import {useNavigation} from '@react-navigation/native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Shadow} from 'react-native-shadow-2';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
 
+type TimerScreenNavigationProp = DrawerNavigationProp<any, any>;
+
 const TimerScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [isSettingOpen, setIsSettingOpen] = useState<boolean>(false);
   const [selectedAligner, setSelectedAligner] = useState<number>(0);
   const [daysLeft, setDaysLeft] = useState<number>(13);
+  const navigation = useNavigation<TimerScreenNavigationProp>();
   const [displayedAligner, setDisplayedAligner] =
     useState<string>('Aligner #1');
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const fillPercentage: number = 40;
 
   const toggleModal = (): void => {
     setModalVisible(!modalVisible);
+  };
+  const toggleSettingOpen = (): void => {
+    setIsSettingOpen(!isSettingOpen);
   };
 
   const alignerTexts: string[] = Array.from(
@@ -47,107 +57,161 @@ const TimerScreen: React.FC = () => {
     return (alignerIndex + 1) * 13;
   };
 
+  useEffect(() => {
+    if (modalVisible && scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        y: selectedAligner * 37,
+        animated: true,
+      });
+    }
+  }, [modalVisible]);
+
   return (
     <SafeAreaView style={styles.container}>
-      <View>
-        <View style={styles.header}>
-          <Icons.MENU />
-          <Text style={styles.headerTitle}>Timer</Text>
-          <Icons.FAQ />
-        </View>
-        <TouchableOpacity
-          onPress={toggleModal}
-          activeOpacity={0.8}
-          style={styles.daysLeftContainer}>
-          <Icons.SYNC />
-          <Text style={styles.daysLeftText}>
-            {daysLeft} more days on {displayedAligner}
-          </Text>
-        </TouchableOpacity>
-        <View style={styles.circularProgressContainer}>
-          <AnimatedCircularProgress
-            size={340}
-            width={25}
-            fill={fillPercentage}
-            tintColor={COLORS.GRAY_LIGHT}
-            backgroundColor={COLORS.GRAY}
-            childrenContainerStyle={styles.circularProgressChildrenContainer}
-            children={() => (
-              <View style={styles.circularProgressInnerContent}>
-                <Text style={styles.notWearingText}>Not Wearing</Text>
-                <View style={styles.alignInfoContainer}>
-                  <Icons.ALIGN />
-                  <Text style={styles.appName}>SPARKLE ALIGN</Text>
-                </View>
-                <Text style={styles.timerText}>10:25</Text>
-                <Text style={styles.outText}>Out 00 00</Text>
+      {isSettingOpen ? (
+        <View style={styles.bottomContainer}>
+          <TouchableOpacity activeOpacity={0.8} style={styles.iconRow}>
+            <Text style={styles.textLabel}>Reminder</Text>
+            <Shadow>
+              <View style={styles.iconButtonContainer}>
+                <Icons.ALARM />
               </View>
-            )}
-          />
-          <View style={styles.circleProgressIndicator}>
-            <View style={styles.progressIndicatorLine} />
-            <Text style={styles.progressIndicatorText}>20</Text>
-          </View>
+            </Shadow>
+          </TouchableOpacity>
+          <TouchableOpacity activeOpacity={0.8} style={styles.iconRow}>
+            <Text style={styles.textLabel}>Share</Text>
+            <Shadow>
+              <View style={styles.iconButtonContainer}>
+                <Icons.SHARE />
+              </View>
+            </Shadow>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={toggleSettingOpen}
+            activeOpacity={0.8}
+            style={[styles.shadowButton, {marginRight: -12}]}>
+            <Icons.DOWNARROW />
+          </TouchableOpacity>
         </View>
-        <View style={styles.daysToSmileContainer}>
-          <Icons.CALENDER />
-          <Text style={styles.daysToSmileText}>
-            419 days to a perfect smile!
-          </Text>
-        </View>
-      </View>
-      <Shadow containerStyle={styles.shadowContainer}>
-        <View style={styles.shadowButton}>
-          <Icons.WRENCH />
-        </View>
-      </Shadow>
-      <Modal transparent={true} animationType="slide" visible={modalVisible}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>I'm currently wearing...</Text>
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              style={styles.scrollView}>
-              {alignerTexts.map((alignerText, index) => (
-                <TouchableOpacity
-                  key={index}
-                  onPress={() => handleAlignerPress(index)}
-                  style={[
-                    styles.alignTextContainer,
-                    selectedAligner === index && styles.selectedAligner,
-                    index === alignerTexts.length - 1 && {marginBottom: 120},
-                  ]}>
-                  <Text
-                    style={[
-                      styles.alignText,
-                      selectedAligner === index && styles.selectedAlignerText,
-                      {
-                        opacity:
-                          selectedAligner === index ||
-                          selectedAligner === index + 1 ||
-                          selectedAligner === index - 1
-                            ? 1
-                            : 0.5,
-                      },
-                    ]}>
-                    {alignerText}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <View style={styles.btnsConatiner}>
-              <Text
-                onPress={() => setModalVisible(!modalVisible)}
-                style={styles.btnText}>
-                CANCEL
+      ) : (
+        <View>
+          <View>
+            <TouchableOpacity
+              onPress={() => navigation.openDrawer()}
+              activeOpacity={0.8}
+              style={styles.header}>
+              <Icons.MENU />
+              <Text style={styles.headerTitle}>Timer</Text>
+              <Icons.FAQ />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={toggleModal}
+              activeOpacity={0.8}
+              style={styles.daysLeftContainer}>
+              <Icons.SYNC />
+              <Text style={styles.daysLeftText}>
+                {daysLeft} more days on {displayedAligner}
               </Text>
-              <Text onPress={handleConfirm} style={styles.btnText}>
-                CONFIRM
+            </TouchableOpacity>
+            <View style={styles.circularProgressContainer}>
+              <AnimatedCircularProgress
+                size={340}
+                width={25}
+                fill={fillPercentage}
+                tintColor={COLORS.GRAY_LIGHT}
+                backgroundColor={COLORS.GRAY}
+                childrenContainerStyle={
+                  styles.circularProgressChildrenContainer
+                }
+                children={() => (
+                  <View style={styles.circularProgressInnerContent}>
+                    <Text style={styles.notWearingText}>Not Wearing</Text>
+                    <View style={styles.alignInfoContainer}>
+                      <Icons.ALIGN />
+                      <Text style={styles.appName}>SPARKLE ALIGN</Text>
+                    </View>
+                    <Text style={styles.timerText}>10:25</Text>
+                    <Text style={styles.outText}>Out 00 00</Text>
+                  </View>
+                )}
+              />
+              <View style={styles.circleProgressIndicator}>
+                <View style={styles.progressIndicatorLine} />
+                <Text style={styles.progressIndicatorText}>20</Text>
+              </View>
+            </View>
+            <View style={styles.daysToSmileContainer}>
+              <Icons.CALENDER />
+              <Text style={styles.daysToSmileText}>
+                419 days to a perfect smile!
               </Text>
             </View>
           </View>
+          <Shadow containerStyle={styles.shadowContainer}>
+            <TouchableOpacity
+              onPress={toggleSettingOpen}
+              activeOpacity={0.8}
+              style={styles.shadowButton}>
+              <Icons.WRENCH />
+            </TouchableOpacity>
+          </Shadow>
+          <Modal
+            transparent={true}
+            animationType="slide"
+            visible={modalVisible}>
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContainer}>
+                <Text style={styles.modalTitle}>I'm currently wearing...</Text>
+                <ScrollView
+                  ref={scrollViewRef}
+                  showsVerticalScrollIndicator={false}
+                  style={styles.scrollView}>
+                  {alignerTexts.map((alignerText, index) => (
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      key={index}
+                      onPress={() => handleAlignerPress(index)}
+                      style={[
+                        styles.alignTextContainer,
+                        selectedAligner === index && styles.selectedAligner,
+                        index === alignerTexts.length - 1 && {
+                          marginBottom: 120,
+                        },
+                      ]}>
+                      <Text
+                        style={[
+                          styles.alignText,
+                          selectedAligner === index &&
+                            styles.selectedAlignerText,
+                          {
+                            opacity:
+                              selectedAligner === index ||
+                              selectedAligner === index + 1 ||
+                              selectedAligner === index - 1
+                                ? 1
+                                : 0.5,
+                          },
+                        ]}>
+                        {alignerText}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+                <View style={styles.btnsConatiner}>
+                  <Text
+                    onPress={() => setModalVisible(!modalVisible)}
+                    style={styles.btnText}>
+                    CANCEL
+                  </Text>
+                  <Text onPress={handleConfirm} style={styles.btnText}>
+                    CONFIRM
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </Modal>
         </View>
-      </Modal>
+      )}
     </SafeAreaView>
   );
 };
@@ -256,12 +320,12 @@ const styles = StyleSheet.create({
   },
   shadowContainer: {
     position: 'absolute',
-    bottom: '9%',
-    right: '5%',
+    top: '105%',
+    left: '83%',
   },
   shadowButton: {
-    height: 50,
-    width: 50,
+    height: 60,
+    width: 60,
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',
@@ -324,5 +388,29 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto-Bold',
     fontSize: 14,
     color: COLORS.BLUE_DARK,
+  },
+  bottomContainer: {
+    gap: 40,
+    alignItems: 'flex-end',
+    position: 'absolute',
+    bottom: '10%',
+    right: '7%',
+  },
+  iconRow: {
+    gap: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  textLabel: {
+    fontFamily: 'Roboto-Bold',
+    fontSize: 17,
+    color: COLORS.BLACK,
+  },
+  iconButtonContainer: {
+    height: 45,
+    width: 45,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -1,114 +1,40 @@
 import React from 'react';
+import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {
-  DrawerContentScrollView,
-  DrawerItem,
-  createDrawerNavigator,
-  DrawerContentComponentProps,
-} from '@react-navigation/drawer';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import NotificationsScreen from '../screens/tabs/NotificationsScreen';
+import {DrawerNavigationProp} from '@react-navigation/drawer';
 import LoginScreen from '../screens/LoginScreen';
-import HomeScreen from '../screens/tabs/homeScreen';
+import OnBoardScreen from '../screens/OnBoardScreen';
 import TimerScreen from '../screens/tabs/TimerScreen';
 import CalenderScreen from '../screens/tabs/CalenderScreen';
+import {useNavigation} from '@react-navigation/native';
+import AdjustCurrentTreatment from '../screens/drawer/AdjustCurrentTreatment';
 import CameraScreen from '../screens/tabs/CameraScreen';
 import DashboardScreen from '../screens/tabs/DashboardScreen';
 import Icons from '../assets/icons';
-import NotificationsScreen from '../screens/tabs/NotificationsScreen';
-import AboutScreen from '../screens/tabs/Aboutscreen';
-import {Text, View} from 'react-native';
-import {useTheme, NavigationContainer} from '@react-navigation/native';
-
-const COLORS = {
-  ORANGE: '#FFA500',
-  GRAY_DARK: '#D3D3D3',
-  BLACK: '#000000',
-  WHITE: '#FFFFFF',
-};
+import COLORS from '../constraints/colors';
 
 type RootStackParamList = {
+  OnBoard: undefined;
   Login: undefined;
-  Home: undefined;
-  Profile: undefined;
+  Drawer: {screen: string};
+  AdjustCurrentTreatment: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
-const StackNavigation: React.FC = () => (
-  <NavigationContainer>
-    <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{headerShown: false}}
-      />
-      <Stack.Screen
-        name="Home"
-        component={TabNavigator}
-        options={{headerShown: false}}
-      />
-    </Stack.Navigator>
-  </NavigationContainer>
-);
-
-const ProfileScreenWithDrawer: React.FC = () => (
-  <Drawer.Navigator
-    initialRouteName="Home"
-    drawerContent={(props: DrawerContentComponentProps) => {
-      const {routeNames, index} = props.state;
-      const focused = routeNames[index];
-
-      return (
-        <DrawerContentScrollView {...props}>
-          <View style={{alignItems: 'center', marginBottom: 20}}>
-            <Text
-              style={{textAlign: 'center', fontSize: 18, fontWeight: 'bold'}}>
-              Code With sahil
-            </Text>
-          </View>
-          <DrawerItem
-            label="Home"
-            onPress={() => props.navigation.navigate('Home')}
-            focused={focused === 'Home'}
-            activeBackgroundColor={COLORS.ORANGE}
-            inactiveBackgroundColor={COLORS.GRAY_DARK}
-            inactiveTintColor={COLORS.BLACK}
-            activeTintColor={COLORS.WHITE}
-          />
-          <DrawerItem
-            label="About"
-            onPress={() => props.navigation.navigate('About')}
-            focused={focused === 'About'}
-            activeBackgroundColor={COLORS.ORANGE}
-            inactiveBackgroundColor={COLORS.GRAY_DARK}
-            inactiveTintColor={COLORS.BLACK}
-            activeTintColor={COLORS.WHITE}
-          />
-        </DrawerContentScrollView>
-      );
-    }}>
-    <Drawer.Screen name="Home" component={HomeScreen} />
-    <Drawer.Screen name="About" component={AboutScreen} />
-  </Drawer.Navigator>
-);
-
-export const TabNavigator: React.FC = () => {
-  const {colors} = useTheme();
-
+const TabNavigator: React.FC = () => {
   return (
     <Tab.Navigator
       initialRouteName="Timer"
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarStyle: {
-          backgroundColor: COLORS.WHITE,
-          height: 80,
-          borderTopWidth: 0.2,
-          borderColor: COLORS.GRAY_DARK,
-        },
+        tabBarStyle: styles.tabBarStyle,
       }}>
       <Tab.Screen
         name="Timer"
@@ -116,13 +42,7 @@ export const TabNavigator: React.FC = () => {
         options={{
           tabBarIcon: ({focused}) =>
             focused ? (
-              <View
-                style={{
-                  paddingVertical: 4,
-                  backgroundColor: '#42afd275',
-                  borderRadius: 25,
-                  paddingHorizontal: 15,
-                }}>
+              <View style={styles.tabIconContainerFocused}>
                 <Icons.TIMERA />
               </View>
             ) : (
@@ -136,13 +56,7 @@ export const TabNavigator: React.FC = () => {
         options={{
           tabBarIcon: ({focused}) =>
             focused ? (
-              <View
-                style={{
-                  paddingVertical: 4,
-                  backgroundColor: '#42afd275',
-                  borderRadius: 25,
-                  paddingHorizontal: 15,
-                }}>
+              <View style={styles.tabIconContainerFocused}>
                 <Icons.CALENDERA />
               </View>
             ) : (
@@ -156,13 +70,7 @@ export const TabNavigator: React.FC = () => {
         options={{
           tabBarIcon: ({focused}) =>
             focused ? (
-              <View
-                style={{
-                  paddingVertical: 4,
-                  backgroundColor: '#42afd275',
-                  borderRadius: 25,
-                  paddingHorizontal: 15,
-                }}>
+              <View style={styles.tabIconContainerFocused}>
                 <Icons.CAMERAA />
               </View>
             ) : (
@@ -176,13 +84,7 @@ export const TabNavigator: React.FC = () => {
         options={{
           tabBarIcon: ({focused}) =>
             focused ? (
-              <View
-                style={{
-                  paddingVertical: 4,
-                  backgroundColor: '#42afd275',
-                  borderRadius: 25,
-                  paddingHorizontal: 15,
-                }}>
+              <View style={styles.tabIconContainerFocused}>
                 <Icons.DASHBOARDA />
               </View>
             ) : (
@@ -196,13 +98,7 @@ export const TabNavigator: React.FC = () => {
         options={{
           tabBarIcon: ({focused}) =>
             focused ? (
-              <View
-                style={{
-                  paddingVertical: 4,
-                  backgroundColor: '#42afd275',
-                  borderRadius: 25,
-                  paddingHorizontal: 15,
-                }}>
+              <View style={styles.tabIconContainerFocused}>
                 <Icons.NOTIFICATIONA />
               </View>
             ) : (
@@ -214,4 +110,147 @@ export const TabNavigator: React.FC = () => {
   );
 };
 
-export default StackNavigation;
+const DrawerContent = () => {
+  const navigation = useNavigation<DrawerNavigationProp<RootStackParamList>>();
+  return (
+    <View style={styles.drawerContentContainer}>
+      <View style={styles.drawerHeader}>
+        <Icons.ALIGN height={40} width={40} />
+        <Text style={styles.drawerHeaderText}>SPARKLE ALIGN</Text>
+      </View>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('Drawer', {screen: 'AdjustCurrentTreatment'})
+        }
+        activeOpacity={0.8}
+        style={styles.drawerSection}>
+        <DrawerItem icon={Icons.ADJUST} text="Adjust Current Treatment" />
+        <DrawerItem icon={Icons.FOLDER} text="Start a New Treatment" />
+      </TouchableOpacity>
+      <View style={styles.drawerSection}>
+        <DrawerItem icon={Icons.MSG} text="Tell a Friend" />
+        <DrawerItem icon={Icons.STAR} text="Review App" />
+        <DrawerItem icon={Icons.EMAIL} text="Send Us Feedback" />
+      </View>
+      <View style={styles.drawerSection}>
+        <DrawerItem icon={Icons.RELOAD} text="Restore Purchase" />
+      </View>
+      <View style={styles.drawerSection}>
+        <DrawerItem icon={Icons.QNA} text="Frequently Asked Questions" />
+        <DrawerItem icon={Icons.CLOUD} text="Backup to Cloud" />
+        <DrawerItem icon={Icons.SETTINGS} text="Settings" />
+      </View>
+    </View>
+  );
+};
+
+const DrawerItem: React.FC<{icon: React.ComponentType; text: string}> = ({
+  icon: Icon,
+  text,
+}) => {
+  return (
+    <View style={styles.drawerItemContainer}>
+      <Icon />
+      <Text style={styles.drawerItemText}>{text}</Text>
+    </View>
+  );
+};
+
+const DrawerNavigation = () => {
+  return (
+    <Drawer.Navigator
+      screenOptions={{
+        headerShown: false,
+        drawerType: 'front',
+        drawerPosition: 'left',
+      }}
+      drawerContent={() => <DrawerContent />}>
+      <Drawer.Screen
+        name="TabNavigator"
+        component={TabNavigator}
+        options={{
+          drawerItemStyle: {height: 0},
+        }}
+      />
+      <Drawer.Screen
+        name="AdjustCurrentTreatment"
+        component={AdjustCurrentTreatment}
+        options={{
+          drawerItemStyle: {height: 0},
+        }}
+      />
+    </Drawer.Navigator>
+  );
+};
+
+export default function AppNavigator() {
+  return (
+    <Stack.Navigator initialRouteName="OnBoard">
+      <Stack.Screen
+        name="OnBoard"
+        component={OnBoardScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="Drawer"
+        component={DrawerNavigation}
+        options={{headerShown: false}}
+      />
+    </Stack.Navigator>
+  );
+}
+
+const styles = StyleSheet.create({
+  tabBarStyle: {
+    backgroundColor: COLORS.WHITE,
+    height: 80,
+    borderTopWidth: 0.2,
+    borderColor: COLORS.GRAY_DARK,
+  },
+  tabIconContainerFocused: {
+    paddingVertical: 4,
+    backgroundColor: '#42afd275',
+    borderRadius: 25,
+    paddingHorizontal: 15,
+  },
+  drawerContentContainer: {
+    paddingTop: 60,
+  },
+  drawerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderColor: COLORS.GRAY,
+    paddingHorizontal: 5,
+  },
+  drawerHeaderText: {
+    fontFamily: 'Roboto-Black',
+    fontSize: 22,
+    color: COLORS.BLUE_LIGHT,
+  },
+  drawerSection: {
+    paddingHorizontal: 20,
+    gap: 35,
+    borderBottomWidth: 1,
+    borderColor: COLORS.GRAY_DARK,
+    marginHorizontal: 13,
+    paddingVertical: 25,
+  },
+  drawerItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+  },
+  drawerItemText: {
+    fontFamily: 'Roboto-Regular',
+    fontSize: 14,
+    color: COLORS.BLACK,
+  },
+});

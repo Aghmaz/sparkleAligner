@@ -28,14 +28,17 @@ const LoginSchema = Yup.object().shape({
 
 type RootStackParamList = {
   Login: undefined;
-  Home: undefined;
+  Drawer: {screen: string};
+  TabNavigator: undefined;
 };
 
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const handleLogin = (value: {email: string; password: string}) => {
-    navigation.navigate('Home');
+    navigation.navigate('Drawer', {
+      screen: 'TabNavigator',
+    });
   };
   const openLink = (url: string) => {
     Linking.openURL(url).catch(err =>
@@ -217,7 +220,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontFamily: 'Roboto-Regular',
-    fontSize: 15,
+    fontSize: 14,
     color: COLORS.GRAY_DARK,
     textAlign: 'center',
     paddingTop: 5,
@@ -226,15 +229,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
+    justifyContent: 'center',
   },
   termsLinkText: {
     fontFamily: 'Roboto-Regular',
-    fontSize: 15,
+    fontSize: 14,
     color: COLORS.BLUE_LIGHT,
   },
   termsDividerText: {
     fontFamily: 'Roboto-Regular',
-    fontSize: 15,
+    fontSize: 14,
     color: COLORS.GRAY_DARK,
   },
 });

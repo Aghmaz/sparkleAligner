@@ -1,23 +1,8 @@
+import 'react-native-gesture-handler';
 import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import {
-  createNativeStackNavigator,
-  NativeStackScreenProps,
-} from '@react-navigation/native-stack';
-import LoginScreen from './src/screens/LoginScreen';
-import Dashboard from './src/screens/Dashboard';
-import {TabNavigator} from './src/navigation';
 import BootSplash from 'react-native-bootsplash';
-import OnBoardScreen from './src/screens/OnBoardScreen';
-// Define types for the navigation stack
-type RootStackParamList = {
-  Login: undefined;
-  Dashboard: undefined;
-  OnBoard: undefined;
-  Home: undefined;
-};
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
+import AppNavigator from './src/navigation';
 
 function App() {
   useEffect(() => {
@@ -33,28 +18,7 @@ function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="OnBoard">
-        <Stack.Screen
-          name="OnBoard"
-          component={OnBoardScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Dashboard"
-          component={Dashboard}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Home"
-          component={TabNavigator}
-          options={{headerShown: false}}
-        />
-      </Stack.Navigator>
+     <AppNavigator/>
     </NavigationContainer>
   );
 }

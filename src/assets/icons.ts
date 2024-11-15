@@ -15,7 +15,21 @@ import SYNC from '../assets/icons/sync.svg';
 import WRENCH from '../assets/icons/wrench.svg';
 import ALIGN from '../assets/icons/align.svg';
 import LIBRARY from '../assets/icons/library.svg';
-
+import CLOUD from '../assets/icons/cloud.svg';
+import SETTINGS from '../assets/icons/settings.svg';
+import QNA from '../assets/icons/qna.svg';
+import RELOAD from '../assets/icons/reload.svg';
+import EMAIL from '../assets/icons/email.svg';
+import MSG from '../assets/icons/message.svg';
+import STAR from '../assets/icons/star.svg';
+import FOLDER from '../assets/icons/folder.svg';
+import ADJUST from '../assets/icons/adjust.svg';
+import ALARM from '../assets/icons/alarm.svg';
+import SHARE from '../assets/icons/share.svg';
+import DOWNARROW from '../assets/icons/down.svg';
+import TICK from '../assets/icons/tick.svg';
+import CROSS from '../assets/icons/cross.svg';
+import EDIT from '../assets/icons/edit.svg';
 
 export default {
   TIMER,
@@ -34,7 +48,20 @@ export default {
   SYNC,
   WRENCH,
   ALIGN,
-  LIBRARY
-}
-
-
+  LIBRARY,
+  CLOUD,
+  SETTINGS,
+  QNA,
+  RELOAD,
+  EMAIL,
+  MSG,
+  STAR,
+  FOLDER,
+  ADJUST,
+  ALARM,
+  SHARE,
+  DOWNARROW,
+  TICK,
+  CROSS,
+  EDIT
+};
