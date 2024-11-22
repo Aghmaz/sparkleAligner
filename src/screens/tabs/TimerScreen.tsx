@@ -18,8 +18,14 @@ import Icons from '../../assets/icons';
 type TimerScreenNavigationProp = DrawerNavigationProp<any, any>;
 
 const TimerScreen: React.FC = () => {
+  const [startTime, setStartTime] = useState<string | null>(null);
+  const [isWearing, setIsWearing] = useState<boolean>(false);
+  const [timer, setTimer] = useState<number>(0);
+  const [outTime, setOutTime] = useState<string>('');
+  const lastPausedAt = useRef<Date | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [isSettingOpen, setIsSettingOpen] = useState<boolean>(false);
+  const [fillPercentage, setFillPercentage] = useState<number>(0);
   const [selectedAligner, setSelectedAligner] = useState<number>(0);
   const [minutesLeft, setMinutesLeft] = useState<number>(2);
   const navigation = useNavigation<TimerScreenNavigationProp>();
@@ -33,7 +39,6 @@ const TimerScreen: React.FC = () => {
   );
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const fillPercentage: number = 40;
   const totalMinutes: number = 60;
   const alignerTimeIncrement: number = 2;
 
@@ -85,6 +90,9 @@ const TimerScreen: React.FC = () => {
         minute: '2-digit',
       });
       setCurrentTime(formattedTime);
+      const minutesPassed = now.getHours() * 60 + now.getMinutes();
+      const percentage = (minutesPassed / 1440) * 100;
+      setFillPercentage(percentage);
     }, 1000);
 
     return () => clearInterval(timer);
@@ -106,9 +114,62 @@ const TimerScreen: React.FC = () => {
         }
       }
     }, 60000);
-
     return () => clearInterval(timeDecrement);
   }, [minutesLeft, selectedAligner]);
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handlePress = () => {
+    const now = new Date();
+    if (!isWearing) {
+      if (!startTime) {
+        setStartTime(
+          now.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+        );
+        setOutTime(
+          now.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+        );
+      } else if (lastPausedAt.current) {
+        const elapsedPausedMinutes = Math.floor(
+          (now.getTime() - lastPausedAt.current.getTime()) / 60000,
+        );
+        setOutTime(prev => {
+          const [hours, minutes] = prev.split(':').map(Number);
+          const newMinutes = minutes + elapsedPausedMinutes;
+          const adjustedHours = hours + Math.floor(newMinutes / 60);
+          const adjustedMinutes = newMinutes % 60;
+          return `${adjustedHours.toString().padStart(2, '0')}:${adjustedMinutes
+            .toString()
+            .padStart(2, '0')}`;
+        });
+      }
+      intervalRef.current = setInterval(() => {
+        setTimer(prev => prev + 1);
+      }, 60000);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      lastPausedAt.current = now;
+    }
+
+    setIsWearing(!isWearing);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -158,33 +219,79 @@ const TimerScreen: React.FC = () => {
                 {displayedAligner}
               </Text>
             </TouchableOpacity>
-            <View style={styles.circularProgressContainer}>
+            <TouchableOpacity
+              onPress={handlePress}
+              activeOpacity={0.8}
+              style={styles.circularProgressContainer}>
               <AnimatedCircularProgress
                 size={340}
                 width={25}
                 fill={fillPercentage}
-                tintColor={COLORS.GRAY_LIGHT}
-                backgroundColor={COLORS.GRAY}
-                childrenContainerStyle={
-                  styles.circularProgressChildrenContainer
-                }
+                tintColor={COLORS.GRAY}
+                backgroundColor={isWearing ? COLORS.GRAY_LIGHT : '#fe9e9f'}
+                rotation={360}
+                childrenContainerStyle={{
+                  backgroundColor: isWearing ? '#d7e0df97' : COLORS.PINK,
+                }}
                 children={() => (
                   <View style={styles.circularProgressInnerContent}>
-                    <Text style={styles.notWearingText}>Not Wearing</Text>
+                    <Text
+                      style={[
+                        styles.notWearingText,
+                        {color: isWearing ? COLORS.BLUE_DARK : COLORS.BROWN},
+                      ]}>
+                      {' '}
+                      {isWearing ? 'Wearing' : 'Not Wearing'}
+                    </Text>
                     <View style={styles.alignInfoContainer}>
                       <Icons.ALIGN />
                       <Text style={styles.appName}>SPARKLE ALIGN</Text>
                     </View>
-                    <Text style={styles.timerText}>00:00</Text>
-                    <Text style={styles.outText}>Out {currentTime}</Text>
+                    <Text
+                      style={[
+                        styles.timerText,
+                        {
+                          color: isWearing
+                            ? COLORS.BLUE_DARK
+                            : COLORS.GRAY_DARK,
+                        },
+                      ]}>
+                      {`${Math.floor(timer / 60)
+                        .toString()
+                        .padStart(2, '0')}:${(timer % 60)
+                        .toString()
+                        .padStart(2, '0')}`}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.outText,
+                        {color: isWearing ? COLORS.GRAY_DARK : COLORS.BROWN},
+                      ]}>
+                      Out {outTime}
+                    </Text>
                   </View>
                 )}
               />
               <View style={styles.circleProgressIndicator}>
-                <View style={styles.progressIndicatorLine} />
-                <Text style={styles.progressIndicatorText}>20</Text>
+                <View
+                  style={[
+                    styles.progressIndicatorLine,
+                    {
+                      backgroundColor: isWearing
+                        ? COLORS.BLUE_DARK
+                        : COLORS.BROWN,
+                    },
+                  ]}
+                />
+                <Text
+                  style={[
+                    styles.progressIndicatorText,
+                    {color: isWearing ? COLORS.BLUE_DARK : COLORS.BROWN},
+                  ]}>
+                  20
+                </Text>
               </View>
-            </View>
+            </TouchableOpacity>
             <View style={styles.daysToSmileContainer}>
               <Icons.CALENDER />
               <Text style={styles.daysToSmileText}>
@@ -297,9 +404,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 25,
   },
-  circularProgressChildrenContainer: {
-    backgroundColor: COLORS.PINK,
-  },
   circularProgressInnerContent: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -307,7 +411,6 @@ const styles = StyleSheet.create({
   notWearingText: {
     fontFamily: 'Roboto-Bold',
     fontSize: 17,
-    color: COLORS.BROWN,
   },
   alignInfoContainer: {
     flexDirection: 'row',
@@ -323,32 +426,28 @@ const styles = StyleSheet.create({
   timerText: {
     fontFamily: 'Roboto-Bold',
     fontSize: 45,
-    color: COLORS.BLACK_LIGHT,
   },
   outText: {
     fontFamily: 'Roboto-Bold',
     fontSize: 27,
-    color: COLORS.BROWN,
   },
   circleProgressIndicator: {
     gap: 6,
     alignItems: 'center',
     flexDirection: 'row',
-    transform: [{rotate: '45deg'}],
+    transform: [{rotate: '30deg'}],
     position: 'absolute',
-    bottom: '90%',
-    left: '-16%',
+    bottom: '76%',
+    left: '-26%',
   },
   progressIndicatorLine: {
     height: 4,
     width: 35,
-    backgroundColor: COLORS.BROWN,
     marginLeft: 125,
   },
   progressIndicatorText: {
     fontFamily: 'Roboto-Black',
     fontSize: 15,
-    color: COLORS.BROWN,
     top: 3,
   },
   daysToSmileContainer: {

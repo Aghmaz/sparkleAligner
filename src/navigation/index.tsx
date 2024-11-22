@@ -9,6 +9,7 @@ import LoginScreen from '../screens/LoginScreen';
 import OnBoardScreen from '../screens/OnBoardScreen';
 import TimerScreen from '../screens/tabs/TimerScreen';
 import CalenderScreen from '../screens/tabs/CalenderScreen';
+import FAQ from '../screens/drawer/FAQ';
 import {useNavigation} from '@react-navigation/native';
 import AdjustCurrentTreatment from '../screens/drawer/AdjustCurrentTreatment';
 import StartANewTreatment from '../screens/drawer/StartANewTreatment';
@@ -145,7 +146,11 @@ const DrawerContent = () => {
         <DrawerItem icon={Icons.RELOAD} text="Restore Purchase" />
       </View>
       <View style={styles.drawerSection}>
-        <DrawerItem icon={Icons.QNA} text="Frequently Asked Questions" />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Drawer', {screen: 'FAQ'})}
+          activeOpacity={0.8}>
+          <DrawerItem icon={Icons.QNA} text="Frequently Asked Questions" />
+        </TouchableOpacity>
         <DrawerItem icon={Icons.CLOUD} text="Backup to Cloud" />
         <TouchableOpacity
           onPress={() => navigation.navigate('Drawer', {screen: 'Settings'})}
@@ -202,6 +207,13 @@ const DrawerNavigation = () => {
       <Drawer.Screen
         name="StartANewTreatment"
         component={StartANewTreatment}
+        options={{
+          drawerItemStyle: {height: 0},
+        }}
+      />
+      <Drawer.Screen
+        name="FAQ"
+        component={FAQ}
         options={{
           drawerItemStyle: {height: 0},
         }}

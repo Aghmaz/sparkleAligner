@@ -26,6 +26,7 @@ import FOLDER from '../assets/icons/folder.svg';
 import ADJUST from '../assets/icons/adjust.svg';
 import ALARM from '../assets/icons/alarm.svg';
 import SHARE from '../assets/icons/share.svg';
+import SHAREWHITE from '../assets/icons/shareWhite.svg';
 import DOWNARROW from '../assets/icons/down.svg';
 import TICK from '../assets/icons/tick.svg';
 import CROSS from '../assets/icons/cross.svg';
@@ -36,8 +37,34 @@ import INFO from '../assets/icons/info.svg';
 import THEME from '../assets/icons/theme.svg';
 import SOUND from '../assets/icons/sound.svg';
 import PRIVACY_POLICY from '../assets/icons/privacy-policy.svg';
+import LIKE from '../assets/icons/like.svg';
+import PLUS from '../assets/icons/plus.svg';
+import ZOOMIN from '../assets/icons/zoom-in.svg';
+import ZOOMOUT from '../assets/icons/zoom-out.svg';
+import CAMERASWITCH from '../assets/icons/camera-switch.svg';
+import FLASHOFF from '../assets/icons/flash-off.svg';
+import FLASH from '../assets/icons/flash.svg';
+import DELETE from '../assets/icons/delete.svg';
+import CAMERAWHITE from '../assets/icons/cameraWhite.svg';
+import FOLDERWHITE from '../assets/icons/folderWhite.svg';
+import EDITWHITE from '../assets/icons/editWhite.svg';
+import TICKWHITE from '../assets/icons/tickWhite.svg';
+import Flip from '../assets/icons/flip.svg';
 
 export default {
+  Flip,
+  TICKWHITE,
+  EDITWHITE,
+  FOLDERWHITE,
+  CAMERAWHITE,
+  DELETE,
+  ZOOMOUT,
+  FLASH,
+  ZOOMIN,
+  CAMERASWITCH,
+  FLASHOFF,
+  PLUS,
+  LIKE,
   TIMER,
   CALENDER,
   CAMERA,
@@ -66,6 +93,7 @@ export default {
   ADJUST,
   ALARM,
   SHARE,
+  SHAREWHITE,
   DOWNARROW,
   TICK,
   CROSS,

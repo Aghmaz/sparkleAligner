@@ -13,7 +13,7 @@ const COLORS: {[key: string]: string} = {
   GRAY_LIGHT: '#c2c8c8',
   GRAY: '#D9DFDF',
   BROWN: '#A0212D',
-  PINK: '#FFE7E5',
+  PINK: '#ffe7e7',
 };
 
 export default COLORS;

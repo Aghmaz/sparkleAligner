@@ -149,13 +149,16 @@ const styles = StyleSheet.create({
   },
   shadowContainer: {
     alignSelf: 'center',
+    // paddingBottom:10,
+    // backgroundColor:'red'
   },
   cardContainer: {
     paddingHorizontal: 20,
-    paddingVertical: 25,
+    paddingTop: 20,
     borderRadius: 12,
     backgroundColor: COLORS.WHITE,
     alignItems: 'center',
+    paddingBottom:28
   },
   profileImage: {
     height: 190,
@@ -166,17 +169,17 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     position: 'absolute',
-    top: '60%',
+    top: '50%',
     gap: 10,
   },
   cardTitle: {
-    fontSize: 20,
+    fontSize: 18,
     color: COLORS.BLUE_LIGHT,
     textAlign: 'center',
     fontFamily: 'Roboto-Medium',
   },
   cardDescription: {
-    fontSize: 14,
+    fontSize: 13,
     color: COLORS.BLACK_LIGHT,
     lineHeight: 20,
     textAlign: 'center',
@@ -186,7 +189,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     position: 'absolute',
-    bottom: '19%',
+    bottom: '18.5%',
     alignSelf: 'center',
     flexDirection: 'row',
   },
