@@ -19,16 +19,25 @@ type TimerScreenNavigationProp = DrawerNavigationProp<any, any>;
 
 const TimerScreen: React.FC = () => {
   const [startTime, setStartTime] = useState<string | null>(null);
-  const [isWearing, setIsWearing] = useState<boolean>(false);
+  const [isWearing, setIsWearing] = useState<boolean>(true);
   const [timer, setTimer] = useState<number>(0);
+  const [notificationTimer, setNotificationTimer] = useState<number>(0);
   const [outTime, setOutTime] = useState<string>('');
   const lastPausedAt = useRef<Date | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [remindModalVisible, setRemindModalVisible] = useState<boolean>(false);
   const [isSettingOpen, setIsSettingOpen] = useState<boolean>(false);
   const [fillPercentage, setFillPercentage] = useState<number>(0);
   const [selectedAligner, setSelectedAligner] = useState<number>(0);
+  const [selectedRemindMin, setSelectedRemindMin] = useState<number>(1);
+  const [selectedRemindHour, setSelectedRemindHOur] = useState<number>(0);
   const [minutesLeft, setMinutesLeft] = useState<number>(2);
   const navigation = useNavigation<TimerScreenNavigationProp>();
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const notificationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const remindMinsscrollViewRef = useRef<ScrollView>(null);
+  const remindHourscrollViewRef = useRef<ScrollView>(null);
   const [displayedAligner, setDisplayedAligner] =
     useState<string>('Aligner #1');
   const [currentTime, setCurrentTime] = useState<string>(
@@ -37,7 +46,6 @@ const TimerScreen: React.FC = () => {
       minute: '2-digit',
     }),
   );
-  const scrollViewRef = useRef<ScrollView>(null);
 
   const totalMinutes: number = 60;
   const alignerTimeIncrement: number = 2;
@@ -48,6 +56,9 @@ const TimerScreen: React.FC = () => {
   const toggleModal = (): void => {
     setModalVisible(!modalVisible);
   };
+  const toggleRemindModal = (): void => {
+    setRemindModalVisible(!remindModalVisible);
+  };
   const toggleSettingOpen = (): void => {
     setIsSettingOpen(!isSettingOpen);
   };
@@ -56,9 +67,23 @@ const TimerScreen: React.FC = () => {
     {length: 30},
     (_, index) => `Aligner #${index + 1}`,
   );
+  const remindHours: string[] = Array.from(
+    {length: 4},
+    (_, index) => `${index} hr`,
+  );
+  const remindMins: string[] = Array.from(
+    {length: 60},
+    (_, index) => `${index.toString().padStart(2, '0')} min`,
+  );
 
   const handleAlignerPress = (index: number): void => {
     setSelectedAligner(index);
+  };
+  const handleRemindMinsPress = (index: number): void => {
+    setSelectedRemindMin(index);
+  };
+  const handleRemindHourPress = (index: number): void => {
+    setSelectedRemindHOur(index);
   };
 
   const handleConfirm = (): void => {
@@ -83,20 +108,41 @@ const TimerScreen: React.FC = () => {
   }, [modalVisible]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
-      const formattedTime = now.toLocaleTimeString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit',
+    if (remindModalVisible && remindHourscrollViewRef.current) {
+      remindHourscrollViewRef.current.scrollTo({
+        y: selectedRemindHour * 37,
+        animated: true,
       });
-      setCurrentTime(formattedTime);
-      const minutesPassed = now.getHours() * 60 + now.getMinutes();
+    }
+  }, [remindModalVisible]);
+
+  useEffect(() => {
+    if (remindModalVisible && remindMinsscrollViewRef.current) {
+      remindMinsscrollViewRef.current.scrollTo({
+        y: selectedRemindMin * 37,
+        animated: true,
+      });
+    }
+  }, [remindModalVisible, selectedRemindMin]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const timeToUse = outTime === '' ? currentTime : outTime;
+      const [hours, minutes] = timeToUse.split(':').map(Number);
+      const minutesPassed = hours * 60 + minutes;
       const percentage = (minutesPassed / 1440) * 100;
       setFillPercentage(percentage);
+      if (outTime === '') {
+        const now = new Date();
+        const formattedTime = now.toLocaleTimeString('en-GB', {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+        setCurrentTime(formattedTime);
+      }
     }, 1000);
-
     return () => clearInterval(timer);
-  }, []);
+  }, [outTime, currentTime]);
 
   useEffect(() => {
     const timeDecrement = setInterval(() => {
@@ -117,59 +163,90 @@ const TimerScreen: React.FC = () => {
     return () => clearInterval(timeDecrement);
   }, [minutesLeft, selectedAligner]);
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
   const handlePress = () => {
     const now = new Date();
     if (!isWearing) {
-      if (!startTime) {
-        setStartTime(
-          now.toLocaleTimeString('en-GB', {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-        );
-        setOutTime(
-          now.toLocaleTimeString('en-GB', {
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
-        );
-      } else if (lastPausedAt.current) {
-        const elapsedPausedMinutes = Math.floor(
-          (now.getTime() - lastPausedAt.current.getTime()) / 60000,
-        );
+      lastPausedAt.current = now;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      intervalRef.current = setInterval(() => {
         setOutTime(prev => {
           const [hours, minutes] = prev.split(':').map(Number);
-          const newMinutes = minutes + elapsedPausedMinutes;
+          const newMinutes = minutes + 1;
           const adjustedHours = hours + Math.floor(newMinutes / 60);
           const adjustedMinutes = newMinutes % 60;
           return `${adjustedHours.toString().padStart(2, '0')}:${adjustedMinutes
             .toString()
             .padStart(2, '0')}`;
         });
+      }, 60000);
+    } else {
+      toggleRemindModal();
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+      if (!startTime) {
+        const formattedTime = now.toLocaleTimeString('en-GB', {
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+        setStartTime(formattedTime);
+        setOutTime(formattedTime);
       }
       intervalRef.current = setInterval(() => {
         setTimer(prev => prev + 1);
       }, 60000);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-      lastPausedAt.current = now;
     }
-
     setIsWearing(!isWearing);
   };
+  const notificationAlertMinutes = selectedRemindHour * 60 + selectedRemindMin;
 
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+  const startTimer = () => {
+    if (!isWearing && notificationAlertMinutes > 0) {
+      setNotificationTimer(notificationAlertMinutes);
+
+      if (notificationIntervalRef.current) {
+        clearInterval(notificationIntervalRef.current);
       }
-    };
-  }, []);
+
+      notificationIntervalRef.current = setInterval(() => {
+        setNotificationTimer(prev => {
+          if (prev > 1) {
+            return prev - 1;
+          } else if (prev === 1) {
+            console.log('Notification Alert');
+            setTimeout(() => {
+              if (!isWearing) {
+                setNotificationTimer(notificationAlertMinutes);
+              } else {
+                clearInterval(notificationIntervalRef.current!);
+              }
+            }, 30000);
+            return 0;
+          }
+          return prev;
+        });
+      }, 60000);
+    }
+  };
+
+  const stopTimer = () => {
+    if (notificationIntervalRef.current) {
+      clearInterval(notificationIntervalRef.current);
+    }
+    setNotificationTimer(0);
+  };
+
+  const handleNoReminder = () => {
+    setRemindModalVisible(false);
+    stopTimer();
+  };
+
+  const handleRemindConfirm = () => {
+    setRemindModalVisible(false);
+    startTimer();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -200,7 +277,7 @@ const TimerScreen: React.FC = () => {
         </View>
       ) : (
         <View>
-          <View>
+          <View style={{height:'100%'}}>
             <TouchableOpacity
               onPress={() => navigation.openDrawer()}
               activeOpacity={0.8}
@@ -256,19 +333,43 @@ const TimerScreen: React.FC = () => {
                             : COLORS.GRAY_DARK,
                         },
                       ]}>
-                      {`${Math.floor(timer / 60)
-                        .toString()
-                        .padStart(2, '0')}:${(timer % 60)
-                        .toString()
-                        .padStart(2, '0')}`}
+                      {outTime === '' ? currentTime : outTime}
                     </Text>
                     <Text
                       style={[
                         styles.outText,
                         {color: isWearing ? COLORS.GRAY_DARK : COLORS.BROWN},
                       ]}>
-                      Out {outTime}
+                      Out{' '}
+                      {`${Math.floor(timer / 60)
+                        .toString()
+                        .padStart(2, '0')}:${(timer % 60)
+                        .toString()
+                        .padStart(2, '0')}`}
                     </Text>
+                    {!isWearing && notificationTimer > 0 && (
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: 6,
+                        }}>
+                        <Icons.ALARM height={15} width={15} style={{top: 5}} />
+                        <Text
+                          style={{
+                            fontFamily: 'Roboto-Regular',
+                            fontSize: 13,
+                            color: COLORS.BLACK,
+                            paddingTop: 10,
+                          }}>
+                          {Math.floor(notificationTimer / 60)
+                            .toString()
+                            .padStart(2, '0')}
+                          :
+                          {(notificationTimer % 60).toString().padStart(2, '0')}
+                        </Text>
+                      </View>
+                    )}
                   </View>
                 )}
               />
@@ -364,6 +465,156 @@ const TimerScreen: React.FC = () => {
           </Modal>
         </View>
       )}
+      <Modal
+        transparent={true}
+        visible={remindModalVisible}
+        animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View
+            style={{
+              backgroundColor: COLORS.PINK,
+              borderRadius: 25,
+              marginHorizontal: 8,
+            }}>
+            <Text style={styles.modalTitle}>Remind me to wear again in</Text>
+            <View style={{flexDirection: 'row'}}>
+              <ScrollView
+                ref={remindHourscrollViewRef}
+                showsVerticalScrollIndicator={false}
+                style={{height: 200, paddingTop: 70}}>
+                {remindHours.map((remindHour, index) => (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    key={index}
+                    onPress={() => handleRemindHourPress(index)}
+                    style={[
+                      styles.alignTextContainer,
+                      selectedRemindHour === index && styles.selectedAligner,
+                      index === remindHours.length - 1 && {
+                        marginBottom: 120,
+                      },
+                    ]}>
+                    <Text
+                      style={[
+                        styles.alignText,
+                        selectedRemindHour === index &&
+                          styles.selectedAlignerText,
+                        {
+                          opacity:
+                            selectedRemindHour === index ||
+                            selectedRemindHour === index + 1 ||
+                            selectedRemindHour === index - 1
+                              ? 1
+                              : 0.5,
+                        },
+                      ]}>
+                      {remindHour}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+              <ScrollView
+                ref={remindMinsscrollViewRef}
+                showsVerticalScrollIndicator={false}
+                style={{height: 200, paddingTop: 70}}>
+                {remindMins.map((remindMin, index) => (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    key={index}
+                    onPress={() => handleRemindMinsPress(index)}
+                    style={[
+                      styles.alignTextContainer,
+                      selectedRemindMin === index && styles.selectedAligner,
+                      index === remindMins.length - 1 && {
+                        marginBottom: 120,
+                      },
+                    ]}>
+                    <Text
+                      style={[
+                        styles.alignText,
+                        selectedRemindMin === index &&
+                          styles.selectedAlignerText,
+                        {
+                          opacity:
+                            selectedRemindMin === index ||
+                            selectedRemindMin === index + 1 ||
+                            selectedRemindMin === index - 1
+                              ? 1
+                              : 0.5,
+                        },
+                      ]}>
+                      {remindMin}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+            <View
+              style={{
+                paddingHorizontal: 20,
+                paddingTop: 15,
+                paddingBottom: 3,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+              <Text
+                onPress={() => setSelectedRemindMin(5)}
+                style={{
+                  fontFamily: 'Roboto-Medium',
+                  fontSize: 17,
+                  color: COLORS.BLACK,
+                }}>
+                5 min
+              </Text>
+              <Text
+                onPress={() => setSelectedRemindMin(15)}
+                style={{
+                  fontFamily: 'Roboto-Medium',
+                  fontSize: 17,
+                  color: COLORS.BLACK,
+                }}>
+                15 min
+              </Text>
+              <Text
+                onPress={() => setSelectedRemindMin(30)}
+                style={{
+                  fontFamily: 'Roboto-Medium',
+                  fontSize: 17,
+                  color: COLORS.BLACK,
+                }}>
+                30 min
+              </Text>
+              <Text
+                onPress={() => setSelectedRemindMin(45)}
+                style={{
+                  fontFamily: 'Roboto-Medium',
+                  fontSize: 17,
+                  color: COLORS.BLACK,
+                }}>
+                45 min
+              </Text>
+              <Text
+                onPress={() => setSelectedRemindHOur(1)}
+                style={{
+                  fontFamily: 'Roboto-Medium',
+                  fontSize: 17,
+                  color: COLORS.BLACK,
+                }}>
+                1 hr
+              </Text>
+            </View>
+            <View style={styles.btnsConatiner}>
+              <Text onPress={handleNoReminder} style={styles.btnText}>
+                NO REMINDER
+              </Text>
+              <Text onPress={handleRemindConfirm} style={styles.btnText}>
+                CONFIRM
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -438,7 +689,7 @@ const styles = StyleSheet.create({
     transform: [{rotate: '30deg'}],
     position: 'absolute',
     bottom: '76%',
-    left: '-26%',
+    left: '-22.5%',
   },
   progressIndicatorLine: {
     height: 4,
@@ -464,7 +715,7 @@ const styles = StyleSheet.create({
   },
   shadowContainer: {
     position: 'absolute',
-    top: '105%',
+    bottom: 0,
     left: '83%',
   },
   shadowButton: {
@@ -485,10 +736,11 @@ const styles = StyleSheet.create({
     width: '85%',
     backgroundColor: COLORS.WHITE,
     borderRadius: 25,
+    marginHorizontal: 10,
   },
   modalTitle: {
     fontFamily: 'Roboto-Medium',
-    fontSize: 20,
+    fontSize: 27,
     color: COLORS.BLACK,
     borderBottomWidth: 1,
     borderColor: COLORS.GRAY_LIGHT,
