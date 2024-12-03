@@ -17,6 +17,7 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {Shadow} from 'react-native-shadow-2';
 import COLORS from '../constraints/colors';
 import {Formik} from 'formik';
+import axios from 'axios';
 import * as Yup from 'yup';
 
 const LoginSchema = Yup.object().shape({
@@ -35,11 +36,28 @@ type RootStackParamList = {
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
-  const handleLogin = (value: {email: string; password: string}) => {
-    navigation.navigate('Drawer', {
-      screen: 'TabNavigator',
-    });
+  
+  const handleLogin = async (values: {email: string; password: string}) => {
+    const payload = {
+      email: values.email,
+      password: values.password,
+    };
+    const response = await axios.post(
+      'http://192.168.8.100:5000/api/auth/login',
+      payload,
+    );
+    if (response.status === 200) {
+      const {token, role} = response.data;
+      console.log('Login Successfully');
+      console.log('Token', token);
+      if (role === 'Patient') {
+        navigation.navigate('Drawer', {
+          screen: 'TabNavigator',
+        });
+      }
+    }
   };
+
   const openLink = (url: string) => {
     Linking.openURL(url).catch(err =>
       console.error('Failed to open link: ', err),
