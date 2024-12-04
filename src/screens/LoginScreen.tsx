@@ -52,21 +52,21 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
         console.log('Login Successfully');
         console.log('Token', token);
         if (role === 'Patient') {
+          Toast.show({
+            type: 'error',
+            position: 'top',
+            text1: 'Login Successfull',
+            text2: response?.data?.message,
+          });
           setTimeout(() => {
-            Toast.show({
-              type: 'error',
-              position: 'top',
-              text1: 'Login Successfull',
-              text2: response?.data?.message,
-            });
-          }, 1000);
-          navigation.navigate('Drawer', {screen: 'TabNavigator'});
+            navigation.navigate('Drawer', {screen: 'TabNavigator'});
+            }, 100);
         } else {
           Toast.show({
             type: 'error',
             position: 'top',
-            text1: 'Invalid Role',
-            text2: `patients only, ${role} can't login`,
+            text1: 'Login Failed',
+            text2: `Invalid Credentials`,
           });
         }
       }
