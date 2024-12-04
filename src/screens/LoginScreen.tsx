@@ -14,10 +14,11 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import Toast from 'react-native-toast-message';
 import {Shadow} from 'react-native-shadow-2';
 import COLORS from '../constraints/colors';
 import {Formik} from 'formik';
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 import * as Yup from 'yup';
 
 const LoginSchema = Yup.object().shape({
@@ -36,23 +37,55 @@ type RootStackParamList = {
 type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
-  
   const handleLogin = async (values: {email: string; password: string}) => {
     const payload = {
       email: values.email,
       password: values.password,
     };
-    const response = await axios.post(
-      'http://192.168.8.100:5000/api/auth/login',
-      payload,
-    );
-    if (response.status === 200) {
-      const {token, role} = response.data;
-      console.log('Login Successfully');
-      console.log('Token', token);
-      if (role === 'Patient') {
-        navigation.navigate('Drawer', {
-          screen: 'TabNavigator',
+    try {
+      const response = await axios.post(
+        'http://192.168.8.100:5000/api/auth/login',
+        payload,
+      );
+      if (response.status === 200) {
+        const {token, role} = response.data;
+        console.log('Login Successfully');
+        console.log('Token', token);
+        if (role === 'Patient') {
+          setTimeout(() => {
+            Toast.show({
+              type: 'error',
+              position: 'top',
+              text1: 'Login Successfull',
+              text2: response?.data?.message,
+            });
+          }, 1000);
+          navigation.navigate('Drawer', {screen: 'TabNavigator'});
+        } else {
+          Toast.show({
+            type: 'error',
+            position: 'top',
+            text1: 'Invalid Role',
+            text2: `patients only, ${role} can't login`,
+          });
+        }
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        Toast.show({
+          type: 'error',
+          position: 'top',
+          text1: 'Login Failed',
+          text2:
+            error.response?.data.error ||
+            'An error occurred. Please try again.',
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          position: 'top',
+          text1: 'Login Failed',
+          text2: 'An unexpected error occurred. Please try again.',
         });
       }
     }

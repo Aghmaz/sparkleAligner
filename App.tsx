@@ -3,6 +3,7 @@ import React, {useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import BootSplash from 'react-native-bootsplash';
 import AppNavigator from './src/navigation';
+import Toast from 'react-native-toast-message';
 
 function App() {
   useEffect(() => {
@@ -19,6 +20,7 @@ function App() {
   return (
     <NavigationContainer>
      <AppNavigator/>
+     <Toast/>
     </NavigationContainer>
   );
 }

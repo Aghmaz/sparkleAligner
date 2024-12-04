@@ -41,6 +41,7 @@
     "react-native-svg": "^15.8.0",
     "react-native-svg-transformer": "^1.5.0",
     "react-native-switch": "^1.5.1",
+    "react-native-toast-message": "^2.2.1",
     "react-native-vision-camera": "^4.6.1",
     "yup": "^1.4.0"
   },
