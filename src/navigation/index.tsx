@@ -118,7 +118,7 @@ const DrawerContent = () => {
   return (
     <View style={styles.drawerContentContainer}>
       <View style={styles.drawerHeader}>
-        <Icons.ALIGN height={40} width={40} />
+        <Icons.AlignBLUELIGHT height={40} width={40}/>
         <Text style={styles.drawerHeaderText}>SPARKLE ALIGN</Text>
       </View>
       <View style={styles.drawerSection}>
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   },
   tabIconContainerFocused: {
     paddingVertical: 4,
-    backgroundColor: '#42afd275',
+    backgroundColor: '#9ceff5',
     borderRadius: 25,
     paddingHorizontal: 15,
   },

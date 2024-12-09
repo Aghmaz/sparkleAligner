@@ -277,7 +277,7 @@ const TimerScreen: React.FC = () => {
         </View>
       ) : (
         <View>
-          <View style={{height:'100%'}}>
+          <View style={{height: '100%'}}>
             <TouchableOpacity
               onPress={() => navigation.openDrawer()}
               activeOpacity={0.8}
@@ -301,28 +301,44 @@ const TimerScreen: React.FC = () => {
               activeOpacity={0.8}
               style={styles.circularProgressContainer}>
               <AnimatedCircularProgress
-                size={340}
+                size={338}
                 width={25}
                 fill={fillPercentage}
-                tintColor={COLORS.GRAY}
-                backgroundColor={isWearing ? COLORS.GRAY_LIGHT : '#fe9e9f'}
+                tintColor={isWearing ? COLORS.SKY_LIGHT : COLORS.BLUE_DARK}
+                backgroundColor={
+                  isWearing ? COLORS.BLUE_DARK : COLORS.SKY_LIGHT
+                }
                 rotation={360}
                 childrenContainerStyle={{
-                  backgroundColor: isWearing ? '#d7e0df97' : COLORS.PINK,
+                  backgroundColor: COLORS.WHITE,
                 }}
                 children={() => (
                   <View style={styles.circularProgressInnerContent}>
                     <Text
                       style={[
                         styles.notWearingText,
-                        {color: isWearing ? COLORS.BLUE_DARK : COLORS.BROWN},
+                        {
+                          color: isWearing
+                            ? COLORS.BLUE_DARK
+                            : COLORS.SKY_LIGHT,
+                        },
                       ]}>
                       {' '}
                       {isWearing ? 'Wearing' : 'Not Wearing'}
                     </Text>
                     <View style={styles.alignInfoContainer}>
-                      <Icons.ALIGN />
-                      <Text style={styles.appName}>SPARKLE ALIGN</Text>
+                      {isWearing ? <Icons.ALIGN /> : <Icons.AlignBLUE />}
+                      <Text
+                        style={[
+                          styles.appName,
+                          {
+                            color: isWearing
+                              ? COLORS.SKY_LIGHT
+                              : COLORS.BLUE_DARK,
+                          },
+                        ]}>
+                        SPARKLE ALIGN
+                      </Text>
                     </View>
                     <Text
                       style={[
@@ -330,16 +346,12 @@ const TimerScreen: React.FC = () => {
                         {
                           color: isWearing
                             ? COLORS.BLUE_DARK
-                            : COLORS.GRAY_DARK,
+                            : COLORS.SKY_LIGHT,
                         },
                       ]}>
                       {outTime === '' ? currentTime : outTime}
                     </Text>
-                    <Text
-                      style={[
-                        styles.outText,
-                        {color: isWearing ? COLORS.GRAY_DARK : COLORS.BROWN},
-                      ]}>
+                    <Text style={[styles.outText, {color: COLORS.GRAY_DARK}]}>
                       Out{' '}
                       {`${Math.floor(timer / 60)
                         .toString()
@@ -373,26 +385,26 @@ const TimerScreen: React.FC = () => {
                   </View>
                 )}
               />
-              <View style={styles.circleProgressIndicator}>
-                <View
-                  style={[
-                    styles.progressIndicatorLine,
-                    {
-                      backgroundColor: isWearing
-                        ? COLORS.BLUE_DARK
-                        : COLORS.BROWN,
-                    },
-                  ]}
-                />
-                <Text
-                  style={[
-                    styles.progressIndicatorText,
-                    {color: isWearing ? COLORS.BLUE_DARK : COLORS.BROWN},
-                  ]}>
-                  20
-                </Text>
-              </View>
             </TouchableOpacity>
+            <View style={styles.circleProgressIndicator}>
+              <View
+                style={[
+                  styles.progressIndicatorLine,
+                  {
+                    backgroundColor: isWearing
+                      ? COLORS.BLUE_DARK
+                      : COLORS.SKY_LIGHT,
+                  },
+                ]}
+              />
+              <Text
+                style={[
+                  styles.progressIndicatorText,
+                  {color: isWearing ? COLORS.BLUE_DARK : COLORS.SKY_LIGHT},
+                ]}>
+                24
+              </Text>
+            </View>
             <View style={styles.daysToSmileContainer}>
               <Icons.CALENDER />
               <Text style={styles.daysToSmileText}>
@@ -472,7 +484,7 @@ const TimerScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View
             style={{
-              backgroundColor: COLORS.PINK,
+              backgroundColor: COLORS.WHITE,
               borderRadius: 25,
               marginHorizontal: 8,
             }}>
@@ -672,7 +684,7 @@ const styles = StyleSheet.create({
   appName: {
     fontFamily: 'Roboto-Bold',
     fontSize: 17,
-    color: COLORS.BLUE_LIGHT,
+    color: COLORS.SKY_LIGHT,
   },
   timerText: {
     fontFamily: 'Roboto-Bold',
@@ -683,18 +695,14 @@ const styles = StyleSheet.create({
     fontSize: 27,
   },
   circleProgressIndicator: {
-    gap: 6,
     alignItems: 'center',
-    flexDirection: 'row',
-    transform: [{rotate: '30deg'}],
     position: 'absolute',
-    bottom: '76%',
-    left: '-22.5%',
+    width: '100%',
+    top: '22%',
   },
   progressIndicatorLine: {
-    height: 4,
-    width: 35,
-    marginLeft: 125,
+    height: 35,
+    width: 4,
   },
   progressIndicatorText: {
     fontFamily: 'Roboto-Black',
@@ -706,7 +714,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
     justifyContent: 'center',
-    paddingTop: 25,
+    paddingTop: 20,
   },
   daysToSmileText: {
     fontFamily: 'Roboto-Medium',
@@ -719,8 +727,8 @@ const styles = StyleSheet.create({
     left: '83%',
   },
   shadowButton: {
-    height: 60,
-    width: 60,
+    height: 50,
+    width: 50,
     borderRadius: 15,
     justifyContent: 'center',
     alignItems: 'center',

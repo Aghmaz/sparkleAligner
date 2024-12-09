@@ -1,6 +1,14 @@
 import React, {useState} from 'react';
-import {StyleSheet, Text, View, Image, TouchableOpacity} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {Shadow} from 'react-native-shadow-2';
 import {useNavigation} from '@react-navigation/native';
 import CheckBox from 'react-native-check-box';
 import COLORS from '../../constraints/colors';
@@ -23,30 +31,41 @@ const StartANewTreatment: React.FC = () => {
     }
   };
 
+  const setupText =
+    activeStep === 0
+      ? "Let's go through a few steps to set up your new treatment."
+      : activeStep === 1
+      ? 'Type of clear aligner for your treatment'
+      : activeStep === 2
+      ? 'Total number of aligners'
+      : activeStep === 3
+      ? 'Number of days to wear each aligner'
+      : activeStep === 4
+      ? 'Your current aligner number'
+      : activeStep === 5
+      ? 'Number of days you have been wearing your current aligner'
+      : 'Remind me to switch aligners at';
+
   return (
     <SafeAreaView style={styles.container}>
-      <View>
-        <Image
-          resizeMode="cover"
-          source={require('../../assets/images/onboard/BG.jpg')}
-          style={styles.backgroundImage}
-        />
-        {activeStep === 0 && (
-          <View style={styles.overlay}>
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              activeOpacity={0.8}>
-              <Icons.CROSSWHITE style={styles.closeIcon} />
-            </TouchableOpacity>
-            <Text style={styles.welcomeText}>Welcome</Text>
-          </View>
-        )}
-      </View>
-      <View
-        style={[
-          styles.bottomContainer,
-          {height: activeStep === 0 ? '60%' : '75%'},
-        ]}>
+      <Image
+        resizeMode="cover"
+        source={require('../../assets/images/onboard/BG.jpg')}
+        style={styles.backgroundImage}
+      />
+      <Text style={styles.appText}>SPARKLE ALIGNER</Text>
+      <Shadow distance={5} containerStyle={styles.shadowWrapper}>
+        <View
+          style={{
+            backgroundColor: 'white',
+            borderRadius: 12,
+            width: Dimensions.get('screen').width / 1.1,
+            height: Dimensions.get('screen').width / 1.6,
+          }}>
+          <Text style={{paddingVertical: 100}} />
+        </View>
+      </Shadow>
+      <View style={styles.bottomContainer}>
         {activeStep === 0 ? (
           <>
             <Text style={styles.setupText}>
@@ -57,7 +76,7 @@ const StartANewTreatment: React.FC = () => {
                 <CheckBox
                   onClick={() => setIsDeleteDataChecked(!isDeleteDataChecked)}
                   isChecked={isDeleteDataChecked}
-                  checkBoxColor={COLORS.SKYBLUE}
+                  checkBoxColor={COLORS.BLUE_LIGHT}
                   style={styles.checkbox}
                 />
                 <Text style={styles.checkboxLabel}>Delete all data</Text>
@@ -68,7 +87,7 @@ const StartANewTreatment: React.FC = () => {
                     setIsDeletePhotosChecked(!isDeletePhotosChecked)
                   }
                   isChecked={isDeletePhotosChecked}
-                  checkBoxColor={COLORS.SKYBLUE}
+                  checkBoxColor={COLORS.BLUE_LIGHT}
                   style={styles.checkbox}
                 />
                 <Text style={styles.checkboxLabel}>Delete all photos</Text>
@@ -77,28 +96,16 @@ const StartANewTreatment: React.FC = () => {
           </>
         ) : (
           <>
-            <Text style={styles.alignerTypeText}>
-              {activeStep === 1
-                ? 'Type of clear aligner for your treatment'
-                : activeStep === 2
-                ? 'Total number of aligners'
-                : activeStep === 3
-                ? 'Number of days to wear each aligner'
-                : activeStep === 4
-                ? 'Your current aligner number'
-                : activeStep === 5
-                ? 'Number of days you have been wearing your current aligner'
-                : 'Remind me to switch aligners at'}
-            </Text>
+            <Text style={styles.setupText}>{setupText}</Text>
             <View style={styles.alignerInfoContainer}>
               {activeStep === 6 ? (
                 <Icons.ALARM
-                  height={25}
-                  width={25}
+                  height={20}
+                  width={20}
                   style={styles.alignerIcon}
                 />
               ) : (
-                <Icons.EDIT height={25} width={25} style={styles.alignerIcon} />
+                <Icons.EDIT height={20} width={20} style={styles.alignerIcon} />
               )}
               <Text style={styles.alignerName}>
                 {' '}
@@ -117,27 +124,41 @@ const StartANewTreatment: React.FC = () => {
             </View>
           </>
         )}
-        <View style={styles.actionButtonsContainer}>
-          <Text style={styles.cancelText}>Cancel</Text>
-          <View style={styles.paginationContainer}>
-            {[...Array(7)].map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.paginationDot,
-                  {
-                    backgroundColor:
-                      index === activeStep ? COLORS.SKYBLUE : COLORS.GRAY,
-                  },
-                ]}
-              />
-            ))}
-          </View>
-          <Text onPress={nextStep} style={styles.nextText}>
-            {activeStep === 6 ? 'Done' : 'Next'}
-          </Text>
-        </View>
       </View>
+      <View style={styles.paginationContainer}>
+        {[...Array(7)].map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.paginationDot,
+              {
+                backgroundColor:
+                  index === activeStep ? COLORS.BLUE_LIGHT : COLORS.GRAY,
+              },
+            ]}
+          />
+        ))}
+      </View>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={nextStep}
+        style={{
+          paddingHorizontal: 20,
+          borderRadius: 8,
+          backgroundColor: COLORS.BLUE_LIGHT,
+          justifyContent: 'center',
+          alignItems: 'center',
+          marginHorizontal: 40,
+          position: 'absolute',
+          width: '80%',
+          alignSelf: 'center',
+          bottom: '8%',
+          paddingVertical: 15,
+        }}>
+        <Text style={styles.nextText}>
+          {activeStep === 6 ? 'Done' : 'Next'}
+        </Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -150,41 +171,40 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WHITE,
   },
   backgroundImage: {
-    height: '85%',
+    height: '70%',
     width: '100%',
+    borderBottomLeftRadius: 80,
+    borderBottomRightRadius: 80,
   },
-  overlay: {
-    position: 'absolute',
-    paddingHorizontal: 20,
-    gap: 40,
-    width: '100%',
-    paddingTop: 40,
-  },
-  closeIcon: {
-    alignSelf: 'flex-end',
-  },
-  welcomeText: {
-    fontFamily: '20db',
+  appText: {
     fontSize: 25,
     color: COLORS.WHITE,
+    position: 'absolute',
+    top: '18%',
+    width: '50%',
     textAlign: 'center',
+    alignSelf: 'center',
+    fontFamily: '20db',
+  },
+  shadowWrapper: {
+    alignSelf: 'center',
+    bottom: '25%',
   },
   bottomContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 25,
+    borderRadius: 12,
     backgroundColor: COLORS.WHITE,
     position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    paddingHorizontal: 20,
-    paddingVertical: 30,
+    bottom: '25%',
+    width: '90%',
+    alignSelf: 'center',
+    height: '30%',
   },
   setupText: {
     fontFamily: 'Roboto-Medium',
-    fontSize: 35,
+    fontSize: 20,
     color: COLORS.BLACK,
-    width: '90%',
-    alignSelf: 'center',
     textAlign: 'center',
   },
   checkboxContainer: {
@@ -205,57 +225,38 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: COLORS.BLACK,
   },
-  alignerTypeText: {
-    fontFamily: 'Roboto-Medium',
-    fontSize: 35,
-    color: COLORS.BLACK,
-    alignSelf: 'center',
-    textAlign: 'center',
-  },
   alignerInfoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 15,
+    paddingTop: 50,
+    paddingBottom: 60,
     alignSelf: 'center',
-    paddingTop: 150,
   },
   alignerIcon: {
     top: 2,
   },
   alignerName: {
     fontFamily: 'Roboto-Medium',
-    fontSize: 30,
-    color: COLORS.BLACK,
-  },
-  actionButtonsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 110,
-    paddingHorizontal: 30,
-    position: 'absolute',
-    width: '100%',
-    alignSelf: 'center',
-    bottom: '5%',
-  },
-  cancelText: {
-    fontFamily: 'Roboto-Medium',
-    fontSize: 17,
+    fontSize: 20,
     color: COLORS.BLACK,
   },
   paginationContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 10,
+    position: 'absolute',
+    bottom: '18.5%',
+    alignSelf: 'center',
+    flexDirection: 'row',
   },
   paginationDot: {
-    height: 8,
-    width: 8,
+    height: 10,
+    width: 10,
     borderRadius: 5,
   },
   nextText: {
-    fontFamily: 'Roboto-Medium',
+    fontFamily: 'Roboto-Regular',
     fontSize: 17,
-    color: COLORS.BLACK,
+    color: COLORS.WHITE,
   },
 });

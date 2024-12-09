@@ -50,8 +50,12 @@ import FOLDERWHITE from '../assets/icons/folderWhite.svg';
 import EDITWHITE from '../assets/icons/editWhite.svg';
 import TICKWHITE from '../assets/icons/tickWhite.svg';
 import Flip from '../assets/icons/flip.svg';
+import AlignBLUE from '../assets/icons/alignBlue.svg';
+import AlignBLUELIGHT from '../assets/icons/alignBlueLight.svg';
 
 export default {
+  AlignBLUELIGHT,
+  AlignBLUE,
   Flip,
   TICKWHITE,
   EDITWHITE,
