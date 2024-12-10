@@ -406,23 +406,8 @@ const TimerScreen: React.FC = () => {
                   ],
                 },
               ]}>
-              <View
-                style={[
-                  styles.progressIndicatorLine,
-                  {
-                    backgroundColor: isWearing
-                      ? COLORS.SKY_LIGHT
-                      : COLORS.BLUE_DARK,
-                  },
-                ]}
-              />
-              <Text
-                style={[
-                  styles.progressIndicatorText,
-                  {color: isWearing ? COLORS.SKY_LIGHT : COLORS.BLUE_DARK},
-                ]}>
-                20
-              </Text>
+              <View style={styles.progressIndicatorLine} />
+              <Text style={styles.progressIndicatorText}>20</Text>
             </View>
             <View style={styles.daysToSmileContainer}>
               <Icons.CALENDER />
@@ -725,16 +710,18 @@ const styles = StyleSheet.create({
     width: circularProgressSize,
   },
   progressIndicatorLine: {
-    width: 2,
+    width: 3,
     height: 30,
     position: 'absolute',
     top: 0,
+    backgroundColor: COLORS.GRAY_DARK,
   },
   progressIndicatorText: {
     position: 'absolute',
     top: 30,
     fontSize: 14,
-    fontWeight: 'bold',
+    color: COLORS.GRAY_DARK,
+    fontFamily:'Roboto-Bold'
   },
   daysToSmileContainer: {
     flexDirection: 'row',

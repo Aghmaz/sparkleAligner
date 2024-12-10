@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React, {useState, useRef,useEffect} from 'react';
 import {
   StyleSheet,
   Text,
   View,
   ScrollView,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
@@ -17,7 +18,39 @@ type SettingsScreenNavigationProp = StackNavigationProp<any, 'Settings'>;
 
 const Settings = () => {
   const [wearAligner, setWearAligner] = useState<boolean>(true);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
   const navigation = useNavigation<SettingsScreenNavigationProp>();
+  const [selectedAligner, setSelectedAligner] = useState<number>(0);
+  const [displayedAligner, setDisplayedAligner] =
+    useState<string>('Automatic');
+
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const themeValues: string[] = Array.from({length: 3}, (_, index) => {
+    const themes = ['Automatic', 'Light', 'Dark'];
+    return themes[index % themes.length];
+  });
+
+  
+  const handleAlignerPress = (index: number): void => {
+    setSelectedAligner(index);
+  };
+
+  const handleConfirm = (): void => {
+    const themeValue = themeValues[selectedAligner];
+    setDisplayedAligner(themeValue);
+    setModalVisible(false);
+  };
+
+  useEffect(() => {
+    if (modalVisible && scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        y: selectedAligner * 37,
+        animated: true,
+      });
+    }
+  }, [modalVisible]);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -98,10 +131,12 @@ const Settings = () => {
         <View style={styles.sectionContainer}>
           <View style={styles.reminderItemContainer}>
             <Icons.THEME width={40} />
-            <View>
+            <TouchableOpacity
+              onPress={() => setModalVisible(true)}
+              activeOpacity={0.8}>
               <Text style={styles.reminderTitle}>Theme</Text>
-              <Text style={styles.reminderSubtitle}>Automatic</Text>
-            </View>
+              <Text style={styles.reminderSubtitle}>{displayedAligner}</Text>
+            </TouchableOpacity>
           </View>
           <View style={styles.reminderItemContainer}>
             <Icons.SOUND width={40} />
@@ -127,6 +162,57 @@ const Settings = () => {
           </View>
         </View>
       </ScrollView>
+      <Modal transparent={true} animationType="slide" visible={modalVisible}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Theme</Text>
+            <ScrollView
+              ref={scrollViewRef}
+              showsVerticalScrollIndicator={false}
+              style={styles.scrollView}>
+              {themeValues.map((themeValue, index) => (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  key={index}
+                  onPress={() => handleAlignerPress(index)}
+                  style={[
+                    styles.alignTextContainer,
+                    selectedAligner === index && styles.selectedAligner,
+                    index === themeValues.length - 1 && {
+                      marginBottom: 120,
+                    },
+                  ]}>
+                  <Text
+                    style={[
+                      styles.alignText,
+                      selectedAligner === index && styles.selectedAlignerText,
+                      {
+                        opacity:
+                          selectedAligner === index ||
+                          selectedAligner === index + 1 ||
+                          selectedAligner === index - 1
+                            ? 1
+                            : 0.5,
+                      },
+                    ]}>
+                    {themeValue}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <View style={styles.btnsConatiner}>
+              <Text
+                onPress={() => setModalVisible(false)}
+                style={styles.btnText}>
+                CANCEL
+              </Text>
+              <Text onPress={handleConfirm} style={styles.btnText}>
+                CONFIRM
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -195,5 +281,64 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.BLACK,
     top: -2,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '85%',
+    backgroundColor: COLORS.WHITE,
+    borderRadius: 25,
+    marginHorizontal: 10,
+  },
+  modalTitle: {
+    fontFamily: 'Roboto-Medium',
+    fontSize: 27,
+    color: COLORS.BLACK,
+    borderBottomWidth: 1,
+    borderColor: COLORS.GRAY_LIGHT,
+    paddingBottom: 15,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  scrollView: {
+    height: 170,
+    paddingTop: 70,
+  },
+  alignTextContainer: {
+    alignItems: 'center',
+  },
+  alignText: {
+    fontFamily: 'Roboto-Medium',
+    fontSize: 20,
+    color: COLORS.GRAY_DARK,
+    paddingBottom: 10,
+  },
+  selectedAligner: {
+    backgroundColor: COLORS.GRAY,
+    paddingTop: 7,
+    marginHorizontal: 10,
+    borderRadius: 10,
+  },
+  selectedAlignerText: {
+    color: COLORS.BLACK,
+  },
+  btnsConatiner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 30,
+    padding: 30,
+    justifyContent: 'flex-end',
+    borderTopWidth: 1,
+    borderColor: COLORS.GRAY_LIGHT,
+    marginTop: 15,
+  },
+  btnText: {
+    fontFamily: 'Roboto-Bold',
+    fontSize: 14,
+    color: COLORS.BLUE_DARK,
   },
 });
