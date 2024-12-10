@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Modal,
   ScrollView,
+  Dimensions,
 } from 'react-native';
 import {AnimatedCircularProgress} from 'react-native-circular-progress';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
@@ -14,6 +15,10 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {Shadow} from 'react-native-shadow-2';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
+
+const {width} = Dimensions.get('window');
+const circularProgressSize = width * 0.9;
+const indicatorPosition = (20 / 24) * 360;
 
 type TimerScreenNavigationProp = DrawerNavigationProp<any, any>;
 
@@ -301,7 +306,7 @@ const TimerScreen: React.FC = () => {
               activeOpacity={0.8}
               style={styles.circularProgressContainer}>
               <AnimatedCircularProgress
-                size={338}
+                size={circularProgressSize}
                 width={25}
                 fill={fillPercentage}
                 tintColor={isWearing ? COLORS.SKY_LIGHT : COLORS.BLUE_DARK}
@@ -386,23 +391,37 @@ const TimerScreen: React.FC = () => {
                 )}
               />
             </TouchableOpacity>
-            <View style={styles.circleProgressIndicator}>
+            <View
+              style={[
+                styles.circleProgressIndicator,
+                {
+                  transform: [
+                    {
+                      translateX: circularProgressSize / 4.6,
+                    },
+                    {rotate: `${indicatorPosition}deg`},
+                    {
+                      translateX: -circularProgressSize / 2,
+                    },
+                  ],
+                },
+              ]}>
               <View
                 style={[
                   styles.progressIndicatorLine,
                   {
                     backgroundColor: isWearing
-                      ? COLORS.BLUE_DARK
-                      : COLORS.SKY_LIGHT,
+                      ? COLORS.SKY_LIGHT
+                      : COLORS.BLUE_DARK,
                   },
                 ]}
               />
               <Text
                 style={[
                   styles.progressIndicatorText,
-                  {color: isWearing ? COLORS.BLUE_DARK : COLORS.SKY_LIGHT},
+                  {color: isWearing ? COLORS.SKY_LIGHT : COLORS.BLUE_DARK},
                 ]}>
-                24
+                20
               </Text>
             </View>
             <View style={styles.daysToSmileContainer}>
@@ -665,11 +684,15 @@ const styles = StyleSheet.create({
   circularProgressContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'relative',
     paddingTop: 25,
   },
   circularProgressInnerContent: {
     justifyContent: 'center',
     alignItems: 'center',
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
   },
   notWearingText: {
     fontFamily: 'Roboto-Bold',
@@ -695,19 +718,23 @@ const styles = StyleSheet.create({
     fontSize: 27,
   },
   circleProgressIndicator: {
-    alignItems: 'center',
     position: 'absolute',
-    width: '100%',
-    top: '22%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: circularProgressSize,
+    width: circularProgressSize,
   },
   progressIndicatorLine: {
-    height: 35,
-    width: 4,
+    width: 2,
+    height: 30,
+    position: 'absolute',
+    top: 0,
   },
   progressIndicatorText: {
-    fontFamily: 'Roboto-Black',
-    fontSize: 15,
-    top: 3,
+    position: 'absolute',
+    top: 30,
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   daysToSmileContainer: {
     flexDirection: 'row',
