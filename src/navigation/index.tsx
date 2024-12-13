@@ -13,9 +13,14 @@ import FAQ from '../screens/drawer/FAQ';
 import {useNavigation} from '@react-navigation/native';
 import AdjustCurrentTreatment from '../screens/drawer/AdjustCurrentTreatment';
 import StartANewTreatment from '../screens/drawer/StartANewTreatment';
+import AddAlignerSwitch from '../screens/tabs/AddAlignerSwitch';
 import Settings from '../screens/drawer/Settings';
 import CameraScreen from '../screens/tabs/CameraScreen';
 import DashboardScreen from '../screens/tabs/DashboardScreen';
+import AddAppointment from '../screens/tabs/AddAppointment';
+import AddTime from '../screens/tabs/AddTime';
+import ChatSupport from '../screens/tabs/ChatSupport';
+import AddNotes from '../screens/tabs/AddNotes';
 import Icons from '../assets/icons';
 import COLORS from '../constraints/colors';
 
@@ -24,6 +29,11 @@ type RootStackParamList = {
   Login: undefined;
   Drawer: {screen: string};
   AdjustCurrentTreatment: undefined;
+  ChatSupport: undefined;
+  AddTime: undefined;
+  AddAlignerSwitch:undefined;
+  AddAppointment:undefined;
+  AddNotes:undefined
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -118,7 +128,7 @@ const DrawerContent = () => {
   return (
     <View style={styles.drawerContentContainer}>
       <View style={styles.drawerHeader}>
-        <Icons.AlignBLUELIGHT height={40} width={40}/>
+        <Icons.AlignBLUELIGHT height={40} width={40} />
         <Text style={styles.drawerHeaderText}>SPARKLE ALIGN</Text>
       </View>
       <View style={styles.drawerSection}>
@@ -233,6 +243,31 @@ export default function AppNavigator() {
       <Stack.Screen
         name="Login"
         component={LoginScreen}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="ChatSupport"
+        component={ChatSupport}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AddNotes"
+        component={AddNotes}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AddAppointment"
+        component={AddAppointment}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AddTime"
+        component={AddTime}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="AddAlignerSwitch"
+        component={AddAlignerSwitch}
         options={{headerShown: false}}
       />
       <Stack.Screen

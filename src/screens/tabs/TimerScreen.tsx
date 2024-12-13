@@ -17,7 +17,7 @@ import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
 
 const {width} = Dimensions.get('window');
-const circularProgressSize = width * 0.9;
+const circularProgressSize = width * 0.8;
 const indicatorPosition = (20 / 24) * 360;
 
 type TimerScreenNavigationProp = DrawerNavigationProp<any, any>;
@@ -307,7 +307,7 @@ const TimerScreen: React.FC = () => {
               style={styles.circularProgressContainer}>
               <AnimatedCircularProgress
                 size={circularProgressSize}
-                width={25}
+                width={20}
                 fill={fillPercentage}
                 tintColor={isWearing ? COLORS.SKY_LIGHT : COLORS.BLUE_DARK}
                 backgroundColor={
@@ -397,11 +397,11 @@ const TimerScreen: React.FC = () => {
                 {
                   transform: [
                     {
-                      translateX: circularProgressSize / 4.6,
+                      translateX: circularProgressSize / 3.15,
                     },
                     {rotate: `${indicatorPosition}deg`},
                     {
-                      translateX: -circularProgressSize / 2,
+                      translateX: -circularProgressSize / 2.1,
                     },
                   ],
                 },
@@ -416,14 +416,33 @@ const TimerScreen: React.FC = () => {
               </Text>
             </View>
           </View>
-          <Shadow containerStyle={styles.shadowContainer}>
-            <TouchableOpacity
-              onPress={toggleSettingOpen}
-              activeOpacity={0.8}
-              style={styles.shadowButton}>
-              <Icons.WRENCH />
-            </TouchableOpacity>
-          </Shadow>
+          <View
+            style={{
+              position: 'absolute',
+              flexDirection: 'row',
+              width: '100%',
+              justifyContent: 'space-between',
+              bottom: 0,
+              paddingBottom: 2,
+              paddingRight: 1.5,
+            }}>
+            <Shadow>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('ChatSupport')}
+                activeOpacity={0.8}
+                style={styles.shadowButton}>
+                <Icons.CHAT />
+              </TouchableOpacity>
+            </Shadow>
+            <Shadow>
+              <TouchableOpacity
+                onPress={toggleSettingOpen}
+                activeOpacity={0.8}
+                style={styles.shadowButton}>
+                <Icons.WRENCH />
+              </TouchableOpacity>
+            </Shadow>
+          </View>
           <Modal
             transparent={true}
             animationType="slide"
@@ -670,7 +689,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    paddingTop: 25,
+    paddingTop: 35,
   },
   circularProgressInnerContent: {
     justifyContent: 'center',
@@ -711,34 +730,29 @@ const styles = StyleSheet.create({
   },
   progressIndicatorLine: {
     width: 3,
-    height: 30,
+    height: 25,
     position: 'absolute',
     top: 0,
     backgroundColor: COLORS.GRAY_DARK,
   },
   progressIndicatorText: {
     position: 'absolute',
-    top: 30,
-    fontSize: 14,
+    top: 25,
+    fontSize: 12,
     color: COLORS.GRAY_DARK,
-    fontFamily:'Roboto-Bold'
+    fontFamily: 'Roboto-Bold',
   },
   daysToSmileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
     justifyContent: 'center',
-    paddingTop: 20,
+    paddingTop: 30,
   },
   daysToSmileText: {
     fontFamily: 'Roboto-Medium',
     fontSize: 20,
     color: COLORS.BLACK,
-  },
-  shadowContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: '83%',
   },
   shadowButton: {
     height: 50,

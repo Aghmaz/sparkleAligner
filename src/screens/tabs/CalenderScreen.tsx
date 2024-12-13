@@ -10,6 +10,10 @@ import Icons from '../../assets/icons';
 
 type RootDrawerParamList = {
   Calendar: undefined;
+  AddTime: undefined;
+  AddAlignerSwitch: undefined;
+  AddAppointment:undefined;
+  AddNotes:undefined
 };
 
 type CalendarScreenNavigationProp = DrawerNavigationProp<
@@ -51,15 +55,21 @@ const CalenderScreen = () => {
     <SafeAreaView style={styles.container}>
       {isPlusOpen ? (
         <View style={styles.bottomContainer}>
-          <TouchableOpacity activeOpacity={0.8} style={styles.iconRow}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('AddTime')}
+            activeOpacity={0.8}
+            style={styles.iconRow}>
             <Text style={styles.textLabel}>Time</Text>
             <Shadow>
               <View style={styles.iconButtonContainer}>
-                <Icons.TIMER />
+                <Icons.KNIFEANDFORK />
               </View>
             </Shadow>
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.8} style={styles.iconRow}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('AddAlignerSwitch')}
+            activeOpacity={0.8}
+            style={styles.iconRow}>
             <Text style={styles.textLabel}>Aligner Switch</Text>
             <Shadow>
               <View style={styles.iconButtonContainer}>
@@ -67,7 +77,9 @@ const CalenderScreen = () => {
               </View>
             </Shadow>
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.8} style={styles.iconRow}>
+          <TouchableOpacity 
+           onPress={() => navigation.navigate('AddAppointment')}
+          activeOpacity={0.8} style={styles.iconRow}>
             <Text style={styles.textLabel}>Ortho Appoinment</Text>
             <Shadow>
               <View style={styles.iconButtonContainer}>
@@ -75,7 +87,9 @@ const CalenderScreen = () => {
               </View>
             </Shadow>
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.8} style={styles.iconRow}>
+          <TouchableOpacity 
+          onPress={() => navigation.navigate('AddNotes')}
+          activeOpacity={0.8} style={styles.iconRow}>
             <Text style={styles.textLabel}>Notes</Text>
             <Shadow>
               <View style={styles.iconButtonContainer}>

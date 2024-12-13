@@ -52,8 +52,18 @@ import TICKWHITE from '../assets/icons/tickWhite.svg';
 import Flip from '../assets/icons/flip.svg';
 import AlignBLUE from '../assets/icons/alignBlue.svg';
 import AlignBLUELIGHT from '../assets/icons/alignBlueLight.svg';
+import CHAT from '../assets/icons/chat.svg';
+import BACKARROW from '../assets/icons/back-arrow.svg';
+import SEND from '../assets/icons/send.svg';
+import KNIFEANDFORK from '../assets/icons/fork-and-knife.svg';
+import LIKEBLACK from '../assets/icons/likeBlack.svg';
 
 export default {
+  LIKEBLACK,
+  KNIFEANDFORK,
+  SEND,
+  BACKARROW,
+  CHAT,
   AlignBLUELIGHT,
   AlignBLUE,
   Flip,
