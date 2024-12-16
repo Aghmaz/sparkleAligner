@@ -7,6 +7,9 @@ import {
   Modal,
   ScrollView,
   Dimensions,
+  FlatList,
+  ListRenderItem,
+  TextInput,
 } from 'react-native';
 import {AnimatedCircularProgress} from 'react-native-circular-progress';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
@@ -22,16 +25,69 @@ const indicatorPosition = (20 / 24) * 360;
 
 type TimerScreenNavigationProp = DrawerNavigationProp<any, any>;
 
+interface Message {
+  id: string;
+  type: 'sender' | 'receiver';
+  text: string;
+  time: string;
+}
+
 const TimerScreen: React.FC = () => {
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      type: 'sender',
+      text: 'Draw a line in the sand -dead a date. Thanks Proceduralize weaponize the data.',
+      time: '6:27 PM',
+    },
+    {
+      id: '2',
+      type: 'receiver',
+      text: 'Draw a line in the sand drop-dead date. And to Proceduralije weaponize their data.',
+      time: '10:27 PM',
+    },
+    {
+      id: '3',
+      type: 'sender',
+      text: 'Great! Thanks.',
+      time: '6:27 AM',
+    },
+    {
+      id: '4',
+      type: 'receiver',
+      text: 'Its my pleasure!',
+      time: '8:27 PM',
+    },
+    {
+      id: '5',
+      type: 'receiver',
+      text: 'Draw a line in the sand drop-dead date. And to Proceduralije weaponize their data yet ping me.',
+      time: '11:27 PM',
+    },
+    {
+      id: '6',
+      type: 'sender',
+      text: 'Great! Thanks.',
+      time: '12:27 AM',
+    },
+    {
+      id: '7',
+      type: 'receiver',
+      text: 'Its my pleasure!',
+      time: '9:27 PM',
+    },
+  ]);
+
   const [startTime, setStartTime] = useState<string | null>(null);
   const [isWearing, setIsWearing] = useState<boolean>(true);
+  const [isChatModalOpen, setIsChatModalOpen] = useState<boolean>(false);
   const [timer, setTimer] = useState<number>(0);
   const [notificationTimer, setNotificationTimer] = useState<number>(0);
   const [outTime, setOutTime] = useState<string>('');
   const lastPausedAt = useRef<Date | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [messageText, setMessageText] = useState('');
   const [remindModalVisible, setRemindModalVisible] = useState<boolean>(false);
-  const [isSettingOpen, setIsSettingOpen] = useState<boolean>(false);
   const [fillPercentage, setFillPercentage] = useState<number>(0);
   const [selectedAligner, setSelectedAligner] = useState<number>(0);
   const [selectedRemindMin, setSelectedRemindMin] = useState<number>(1);
@@ -55,6 +111,8 @@ const TimerScreen: React.FC = () => {
   const totalMinutes: number = 60;
   const alignerTimeIncrement: number = 2;
 
+  const flatListRef = useRef<FlatList>(null);
+
   const [remainingMinutes, setRemainingMinutes] =
     useState<number>(totalMinutes);
 
@@ -63,9 +121,6 @@ const TimerScreen: React.FC = () => {
   };
   const toggleRemindModal = (): void => {
     setRemindModalVisible(!remindModalVisible);
-  };
-  const toggleSettingOpen = (): void => {
-    setIsSettingOpen(!isSettingOpen);
   };
 
   const alignerTexts: string[] = Array.from(
@@ -253,253 +308,268 @@ const TimerScreen: React.FC = () => {
     startTimer();
   };
 
+  const renderItem: ListRenderItem<Message> = ({item}) => (
+    <View
+      style={[
+        styles.msgContainer,
+        {
+          flexDirection: item.type === 'sender' ? 'row-reverse' : 'row',
+        },
+      ]}>
+      <View
+        style={{
+          backgroundColor: '#9ceff545',
+          padding: 20,
+          borderTopLeftRadius: 8,
+          borderTopRightRadius: 8,
+          maxWidth: '89%',
+          borderBottomLeftRadius: item.type === 'sender' ? 0 : 8,
+          borderBottomRightRadius: item.type === 'sender' ? 8 : 0,
+          gap: 5,
+        }}>
+        <Text style={styles.msgText}>{item.text}</Text>
+        <Text
+          style={{
+            fontFamily: 'Roboto-Regular',
+            fontSize: 12,
+            color: COLORS.GRAY_DARK,
+            textAlign: item.type === 'sender' ? 'left' : 'right',
+          }}>
+          {item.time}
+        </Text>
+      </View>
+    </View>
+  );
+
+  const handleSend = () => {
+    if (messageText.trim()) {
+      const newMessage: Message = {
+        id: String(messages.length + 1),
+        type: 'sender',
+        text: messageText.trim(),
+        time: new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+      };
+
+      setMessages(prevMessages => [...prevMessages, newMessage]);
+      setMessageText('');
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (messages.length > 0) {
+      flatListRef.current?.scrollToIndex({
+        index: messages.length - 1,
+        animated: true,
+      });
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [isChatModalOpen, messages]);
+
+  const handleInputFocus = () => {
+    scrollToBottom();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      {isSettingOpen ? (
-        <View style={styles.bottomContainer}>
-          <TouchableOpacity activeOpacity={0.8} style={styles.iconRow}>
-            <Text style={styles.textLabel}>Reminder</Text>
-            <Shadow>
-              <View style={styles.iconButtonContainer}>
-                <Icons.ALARM />
-              </View>
-            </Shadow>
-          </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.8} style={styles.iconRow}>
-            <Text style={styles.textLabel}>Share</Text>
-            <Shadow>
-              <View style={styles.iconButtonContainer}>
-                <Icons.SHARE />
-              </View>
-            </Shadow>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={toggleSettingOpen}
-            activeOpacity={0.8}
-            style={[styles.shadowButton, {marginRight: -12}]}>
-            <Icons.DOWNARROW />
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View>
-          <View style={{height: '100%'}}>
-            <TouchableOpacity
-              onPress={() => navigation.openDrawer()}
-              activeOpacity={0.8}
-              style={styles.header}>
-              <Icons.MENU />
-              <Text style={styles.headerTitle}>Timer</Text>
-              <Icons.FAQ />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={toggleModal}
-              activeOpacity={0.8}
-              style={styles.daysLeftContainer}>
-              <Icons.SYNC />
-              <Text style={styles.daysLeftText}>
-                {minutesLeft} more {minutesLeft === 1 ? 'minute' : 'minutes'} on{' '}
-                {displayedAligner}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handlePress}
-              activeOpacity={0.8}
-              style={styles.circularProgressContainer}>
-              <AnimatedCircularProgress
-                size={circularProgressSize}
-                width={20}
-                fill={fillPercentage}
-                tintColor={isWearing ? COLORS.SKY_LIGHT : COLORS.BLUE_DARK}
-                backgroundColor={
-                  isWearing ? COLORS.BLUE_DARK : COLORS.SKY_LIGHT
-                }
-                rotation={360}
-                childrenContainerStyle={{
-                  backgroundColor: COLORS.WHITE,
-                }}
-                children={() => (
-                  <View style={styles.circularProgressInnerContent}>
-                    <Text
-                      style={[
-                        styles.notWearingText,
-                        {
-                          color: isWearing
-                            ? COLORS.BLUE_DARK
-                            : COLORS.SKY_LIGHT,
-                        },
-                      ]}>
-                      {' '}
-                      {isWearing ? 'Wearing' : 'Not Wearing'}
-                    </Text>
-                    <View style={styles.alignInfoContainer}>
-                      {isWearing ? <Icons.ALIGN /> : <Icons.AlignBLUE />}
-                      <Text
-                        style={[
-                          styles.appName,
-                          {
-                            color: isWearing
-                              ? COLORS.SKY_LIGHT
-                              : COLORS.BLUE_DARK,
-                          },
-                        ]}>
-                        SPARKLE ALIGN
-                      </Text>
-                    </View>
-                    <Text
-                      style={[
-                        styles.timerText,
-                        {
-                          color: isWearing
-                            ? COLORS.BLUE_DARK
-                            : COLORS.SKY_LIGHT,
-                        },
-                      ]}>
-                      {outTime === '' ? currentTime : outTime}
-                    </Text>
-                    <Text style={[styles.outText, {color: COLORS.GRAY_DARK}]}>
-                      Out{' '}
-                      {`${Math.floor(timer / 60)
-                        .toString()
-                        .padStart(2, '0')}:${(timer % 60)
-                        .toString()
-                        .padStart(2, '0')}`}
-                    </Text>
-                    {!isWearing && notificationTimer > 0 && (
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          gap: 6,
-                        }}>
-                        <Icons.ALARM height={15} width={15} style={{top: 5}} />
-                        <Text
-                          style={{
-                            fontFamily: 'Roboto-Regular',
-                            fontSize: 13,
-                            color: COLORS.BLACK,
-                            paddingTop: 10,
-                          }}>
-                          {Math.floor(notificationTimer / 60)
-                            .toString()
-                            .padStart(2, '0')}
-                          :
-                          {(notificationTimer % 60).toString().padStart(2, '0')}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                )}
-              />
-            </TouchableOpacity>
-            <View
-              style={[
-                styles.circleProgressIndicator,
-                {
-                  transform: [
+      <View style={{height:'100%'}}>
+        <TouchableOpacity
+          onPress={() => navigation.openDrawer()}
+          activeOpacity={0.8}
+          style={styles.header}>
+          <Icons.MENU />
+          <Text style={styles.headerTitle}>Timer</Text>
+          <Icons.FAQ />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={toggleModal}
+          activeOpacity={0.8}
+          style={styles.daysLeftContainer}>
+          <Icons.SYNC />
+          <Text style={styles.daysLeftText}>
+            {minutesLeft} more {minutesLeft === 1 ? 'minute' : 'minutes'} on{' '}
+            {displayedAligner}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handlePress}
+          activeOpacity={0.8}
+          style={styles.circularProgressContainer}>
+          <AnimatedCircularProgress
+            size={circularProgressSize}
+            width={20}
+            fill={fillPercentage}
+            tintColor={isWearing ? COLORS.SKY_LIGHT : COLORS.BLUE_DARK}
+            backgroundColor={isWearing ? COLORS.BLUE_DARK : COLORS.SKY_LIGHT}
+            rotation={360}
+            childrenContainerStyle={{
+              backgroundColor: COLORS.WHITE,
+            }}
+            children={() => (
+              <View style={styles.circularProgressInnerContent}>
+                <Text
+                  style={[
+                    styles.notWearingText,
                     {
-                      translateX: circularProgressSize / 3.15,
+                      color: isWearing ? COLORS.BLUE_DARK : COLORS.SKY_LIGHT,
                     },
-                    {rotate: `${indicatorPosition}deg`},
-                    {
-                      translateX: -circularProgressSize / 2.1,
-                    },
-                  ],
-                },
-              ]}>
-              <View style={styles.progressIndicatorLine} />
-              <Text style={styles.progressIndicatorText}>20</Text>
-            </View>
-            <View style={styles.daysToSmileContainer}>
-              <Icons.CALENDER />
-              <Text style={styles.daysToSmileText}>
-                {remainingMinutes} minutes to a perfect smile!
-              </Text>
-            </View>
-          </View>
-          <View
-            style={{
-              position: 'absolute',
-              flexDirection: 'row',
-              width: '100%',
-              justifyContent: 'space-between',
-              bottom: 0,
-              paddingBottom: 2,
-              paddingRight: 1.5,
-            }}>
-            <Shadow>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('ChatSupport')}
-                activeOpacity={0.8}
-                style={styles.shadowButton}>
-                <Icons.CHAT />
-              </TouchableOpacity>
-            </Shadow>
-            <Shadow>
-              <TouchableOpacity
-                onPress={toggleSettingOpen}
-                activeOpacity={0.8}
-                style={styles.shadowButton}>
-                <Icons.WRENCH />
-              </TouchableOpacity>
-            </Shadow>
-          </View>
-          <Modal
-            transparent={true}
-            animationType="slide"
-            visible={modalVisible}>
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalContainer}>
-                <Text style={styles.modalTitle}>I'm currently wearing...</Text>
-                <ScrollView
-                  ref={scrollViewRef}
-                  showsVerticalScrollIndicator={false}
-                  style={styles.scrollView}>
-                  {alignerTexts.map((alignerText, index) => (
-                    <TouchableOpacity
-                      activeOpacity={0.8}
-                      key={index}
-                      onPress={() => handleAlignerPress(index)}
-                      style={[
-                        styles.alignTextContainer,
-                        selectedAligner === index && styles.selectedAligner,
-                        index === alignerTexts.length - 1 && {
-                          marginBottom: 120,
-                        },
-                      ]}>
-                      <Text
-                        style={[
-                          styles.alignText,
-                          selectedAligner === index &&
-                            styles.selectedAlignerText,
-                          {
-                            opacity:
-                              selectedAligner === index ||
-                              selectedAligner === index + 1 ||
-                              selectedAligner === index - 1
-                                ? 1
-                                : 0.5,
-                          },
-                        ]}>
-                        {alignerText}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-                <View style={styles.btnsConatiner}>
+                  ]}>
+                  {' '}
+                  {isWearing ? 'Wearing' : 'Not Wearing'}
+                </Text>
+                <View style={styles.alignInfoContainer}>
+                  {isWearing ? <Icons.ALIGN /> : <Icons.AlignBLUE />}
                   <Text
-                    onPress={() => setModalVisible(!modalVisible)}
-                    style={styles.btnText}>
-                    CANCEL
-                  </Text>
-                  <Text onPress={handleConfirm} style={styles.btnText}>
-                    CONFIRM
+                    style={[
+                      styles.appName,
+                      {
+                        color: isWearing ? COLORS.SKY_LIGHT : COLORS.BLUE_DARK,
+                      },
+                    ]}>
+                    SPARKLE ALIGN
                   </Text>
                 </View>
+                <Text
+                  style={[
+                    styles.timerText,
+                    {
+                      color: isWearing ? COLORS.BLUE_DARK : COLORS.SKY_LIGHT,
+                    },
+                  ]}>
+                  {outTime === '' ? currentTime : outTime}
+                </Text>
+                <Text style={[styles.outText, {color: COLORS.GRAY_DARK}]}>
+                  Out{' '}
+                  {`${Math.floor(timer / 60)
+                    .toString()
+                    .padStart(2, '0')}:${(timer % 60)
+                    .toString()
+                    .padStart(2, '0')}`}
+                </Text>
+                {!isWearing && notificationTimer > 0 && (
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                    }}>
+                    <Icons.ALARM height={15} width={15} style={{top: 5}} />
+                    <Text
+                      style={{
+                        fontFamily: 'Roboto-Regular',
+                        fontSize: 13,
+                        color: COLORS.BLACK,
+                        paddingTop: 10,
+                      }}>
+                      {Math.floor(notificationTimer / 60)
+                        .toString()
+                        .padStart(2, '0')}
+                      :{(notificationTimer % 60).toString().padStart(2, '0')}
+                    </Text>
+                  </View>
+                )}
               </View>
-            </View>
-          </Modal>
+            )}
+          />
+        </TouchableOpacity>
+        <View
+          style={[
+            styles.circleProgressIndicator,
+            {
+              transform: [
+                {
+                  translateX: circularProgressSize / 3.15,
+                },
+                {rotate: `${indicatorPosition}deg`},
+                {
+                  translateX: -circularProgressSize / 2.1,
+                },
+              ],
+            },
+          ]}>
+          <View style={styles.progressIndicatorLine} />
+          <Text style={styles.progressIndicatorText}>20</Text>
         </View>
-      )}
+        <View style={styles.daysToSmileContainer}>
+          <Icons.CALENDER />
+          <Text style={styles.daysToSmileText}>
+            {remainingMinutes} minutes to a perfect smile!
+          </Text>
+        </View>
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            paddingBottom: 2,
+            paddingRight: 1.5,
+          }}>
+          <Shadow>
+            <TouchableOpacity
+              onPress={() => setIsChatModalOpen(true)}
+              activeOpacity={0.8}
+              style={styles.shadowButton}>
+              <Icons.CHAT />
+            </TouchableOpacity>
+          </Shadow>
+        </View>
+      </View>
+      <Modal transparent={true} animationType="slide" visible={modalVisible}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>I'm currently wearing...</Text>
+            <ScrollView
+              ref={scrollViewRef}
+              showsVerticalScrollIndicator={false}
+              style={styles.scrollView}>
+              {alignerTexts.map((alignerText, index) => (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  key={index}
+                  onPress={() => handleAlignerPress(index)}
+                  style={[
+                    styles.alignTextContainer,
+                    selectedAligner === index && styles.selectedAligner,
+                    index === alignerTexts.length - 1 && {
+                      marginBottom: 120,
+                    },
+                  ]}>
+                  <Text
+                    style={[
+                      styles.alignText,
+                      selectedAligner === index && styles.selectedAlignerText,
+                      {
+                        opacity:
+                          selectedAligner === index ||
+                          selectedAligner === index + 1 ||
+                          selectedAligner === index - 1
+                            ? 1
+                            : 0.5,
+                      },
+                    ]}>
+                    {alignerText}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <View style={styles.btnsConatiner}>
+              <Text
+                onPress={() => setModalVisible(!modalVisible)}
+                style={styles.btnText}>
+                CANCEL
+              </Text>
+              <Text onPress={handleConfirm} style={styles.btnText}>
+                CONFIRM
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <Modal
         transparent={true}
         visible={remindModalVisible}
@@ -650,6 +720,56 @@ const TimerScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
+      <Modal transparent={true} visible={isChatModalOpen} animationType="none">
+        <View style={styles.modalOverlay}>
+          <View
+            style={{
+              backgroundColor: COLORS.WHITE,
+              borderRadius: 12,
+              height: '80%',
+              paddingHorizontal: 10,
+            }}>
+            <View style={styles.chatHeader}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setIsChatModalOpen(false)}>
+                <Icons.BACKARROW />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Chat Support</Text>
+            </View>
+            <FlatList
+              ref={flatListRef}
+              data={messages}
+              showsVerticalScrollIndicator={false}
+              renderItem={renderItem}
+              keyExtractor={item => item.id}
+              getItemLayout={(data, index) => ({
+                length: 100,
+                offset: 100 * index,
+                index,
+              })}
+            />
+            <View style={styles.inputContainer}>
+              <TextInput
+                multiline
+                numberOfLines={5}
+                style={styles.textInput}
+                placeholder="Type your message..."
+                value={messageText}
+                onChangeText={setMessageText}
+                placeholderTextColor={COLORS.GRAY_DARK}
+                onFocus={handleInputFocus}
+              />
+              <TouchableOpacity
+                activeOpacity={0.8}
+                style={styles.sendButton}
+                onPress={handleSend}>
+                <Icons.SEND />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -657,6 +777,14 @@ const TimerScreen: React.FC = () => {
 export default TimerScreen;
 
 const styles = StyleSheet.create({
+  msgContainer: {
+    padding: 10,
+  },
+  msgText: {
+    fontSize: 14,
+    color: COLORS.BLACK,
+    fontFamily: 'Roboto-Regular',
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.WHITE,
@@ -668,10 +796,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  chatHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 100,
+    paddingVertical: 15,
+  },
   headerTitle: {
     fontFamily: 'Roboto-Regular',
     fontSize: 20,
     color: COLORS.BLACK,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    paddingVertical: 15,
+    paddingHorizontal: 5,
+  },
+  textInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: COLORS.GRAY_DARK,
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    fontSize: 14,
   },
   daysLeftContainer: {
     flexDirection: 'row',
@@ -697,6 +845,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
+  },
+  sendButton: {
+    backgroundColor: '#9ceff5',
+    marginLeft: 15,
+    borderRadius: 50,
+    height: 45,
+    width: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   notWearingText: {
     fontFamily: 'Roboto-Bold',
@@ -820,29 +977,5 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto-Bold',
     fontSize: 14,
     color: COLORS.BLUE_DARK,
-  },
-  bottomContainer: {
-    gap: 40,
-    alignItems: 'flex-end',
-    position: 'absolute',
-    bottom: '10%',
-    right: '7%',
-  },
-  iconRow: {
-    gap: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  textLabel: {
-    fontFamily: 'Roboto-Bold',
-    fontSize: 17,
-    color: COLORS.BLACK,
-  },
-  iconButtonContainer: {
-    height: 45,
-    width: 45,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
 });

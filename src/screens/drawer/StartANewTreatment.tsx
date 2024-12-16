@@ -50,7 +50,7 @@ const StartANewTreatment: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <Image
         resizeMode="cover"
-        source={require('../../assets/images/onboard/BG.jpg')}
+        source={require('../../assets/images/onboard/BG.webp')}
         style={styles.backgroundImage}
       />
       <Text style={styles.appText}>SPARKLE ALIGNER</Text>

@@ -3,7 +3,6 @@ import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import NotificationsScreen from '../screens/tabs/NotificationsScreen';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
 import LoginScreen from '../screens/LoginScreen';
 import OnBoardScreen from '../screens/OnBoardScreen';
@@ -16,10 +15,8 @@ import StartANewTreatment from '../screens/drawer/StartANewTreatment';
 import AddAlignerSwitch from '../screens/tabs/AddAlignerSwitch';
 import Settings from '../screens/drawer/Settings';
 import CameraScreen from '../screens/tabs/CameraScreen';
-import DashboardScreen from '../screens/tabs/DashboardScreen';
 import AddAppointment from '../screens/tabs/AddAppointment';
 import AddTime from '../screens/tabs/AddTime';
-import ChatSupport from '../screens/tabs/ChatSupport';
 import AddNotes from '../screens/tabs/AddNotes';
 import Icons from '../assets/icons';
 import COLORS from '../constraints/colors';
@@ -29,7 +26,6 @@ type RootStackParamList = {
   Login: undefined;
   Drawer: {screen: string};
   AdjustCurrentTreatment: undefined;
-  ChatSupport: undefined;
   AddTime: undefined;
   AddAlignerSwitch:undefined;
   AddAppointment:undefined;
@@ -91,34 +87,6 @@ const TabNavigator: React.FC = () => {
             ),
         }}
       />
-      <Tab.Screen
-        name="Dashboard"
-        component={DashboardScreen}
-        options={{
-          tabBarIcon: ({focused}) =>
-            focused ? (
-              <View style={styles.tabIconContainerFocused}>
-                <Icons.DASHBOARDA />
-              </View>
-            ) : (
-              <Icons.DASHBOARD />
-            ),
-        }}
-      />
-      <Tab.Screen
-        name="Notifications"
-        component={NotificationsScreen}
-        options={{
-          tabBarIcon: ({focused}) =>
-            focused ? (
-              <View style={styles.tabIconContainerFocused}>
-                <Icons.NOTIFICATIONA />
-              </View>
-            ) : (
-              <Icons.NOTIFICATION />
-            ),
-        }}
-      />
     </Tab.Navigator>
   );
 };
@@ -148,12 +116,7 @@ const DrawerContent = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.drawerSection}>
-        <DrawerItem icon={Icons.MSG} text="Tell a Friend" />
         <DrawerItem icon={Icons.STAR} text="Review App" />
-        <DrawerItem icon={Icons.EMAIL} text="Send Us Feedback" />
-      </View>
-      <View style={styles.drawerSection}>
-        <DrawerItem icon={Icons.RELOAD} text="Restore Purchase" />
       </View>
       <View style={styles.drawerSection}>
         <TouchableOpacity
@@ -161,7 +124,6 @@ const DrawerContent = () => {
           activeOpacity={0.8}>
           <DrawerItem icon={Icons.QNA} text="Frequently Asked Questions" />
         </TouchableOpacity>
-        <DrawerItem icon={Icons.CLOUD} text="Backup to Cloud" />
         <TouchableOpacity
           onPress={() => navigation.navigate('Drawer', {screen: 'Settings'})}
           activeOpacity={0.8}>
@@ -243,11 +205,6 @@ export default function AppNavigator() {
       <Stack.Screen
         name="Login"
         component={LoginScreen}
-        options={{headerShown: false}}
-      />
-      <Stack.Screen
-        name="ChatSupport"
-        component={ChatSupport}
         options={{headerShown: false}}
       />
       <Stack.Screen

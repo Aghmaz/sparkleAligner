@@ -4,7 +4,7 @@ import {Calendar} from 'react-native-calendars';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Shadow} from 'react-native-shadow-2';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
 
@@ -12,8 +12,8 @@ type RootDrawerParamList = {
   Calendar: undefined;
   AddTime: undefined;
   AddAlignerSwitch: undefined;
-  AddAppointment:undefined;
-  AddNotes:undefined
+  AddAppointment: undefined;
+  AddNotes: {savedNote: string} | undefined;
 };
 
 type CalendarScreenNavigationProp = DrawerNavigationProp<
@@ -26,6 +26,9 @@ const CalenderScreen = () => {
   const [isPlusOpen, setIsPlusOpen] = useState<boolean>(false);
   const [currentMonth, setCurrentMonth] = useState<string>('November 2024');
   const navigation = useNavigation<CalendarScreenNavigationProp>();
+  const route = useRoute<RouteProp<RootDrawerParamList, 'AddNotes'>>();
+
+  const note = route.params?.savedNote;
 
   const today = new Date();
   const todayDate = today.toISOString().split('T')[0];
@@ -77,9 +80,10 @@ const CalenderScreen = () => {
               </View>
             </Shadow>
           </TouchableOpacity>
-          <TouchableOpacity 
-           onPress={() => navigation.navigate('AddAppointment')}
-          activeOpacity={0.8} style={styles.iconRow}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('AddAppointment')}
+            activeOpacity={0.8}
+            style={styles.iconRow}>
             <Text style={styles.textLabel}>Ortho Appoinment</Text>
             <Shadow>
               <View style={styles.iconButtonContainer}>
@@ -87,9 +91,13 @@ const CalenderScreen = () => {
               </View>
             </Shadow>
           </TouchableOpacity>
-          <TouchableOpacity 
-          onPress={() => navigation.navigate('AddNotes')}
-          activeOpacity={0.8} style={styles.iconRow}>
+          <TouchableOpacity
+            onPress={() => {
+              setIsPlusOpen(false);
+              navigation.navigate('AddNotes', {savedNote: note || ''});
+            }}
+            activeOpacity={0.8}
+            style={styles.iconRow}>
             <Text style={styles.textLabel}>Notes</Text>
             <Shadow>
               <View style={styles.iconButtonContainer}>
@@ -145,6 +153,27 @@ const CalenderScreen = () => {
             <Text style={styles.totalText}>Total: {'<'} 1 min</Text>
             <Text style={styles.alignerText}>Aligner #1</Text>
           </View>
+          {note && (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 20,
+                padding: 10,
+                borderBottomWidth: 2,
+                borderColor: COLORS.GRAY,
+              }}>
+              <Icons.FOLDER />
+              <Text
+                style={{
+                  fontFamily: 'Roboto-Regular',
+                  fontSize: 17,
+                  color: COLORS.BLACK,
+                }}>
+                {note}
+              </Text>
+            </View>
+          )}
           <View style={styles.detailsBar}>
             <Icons.LIKE />
             <Text style={styles.detailsText}>15 hr 50 min</Text>
@@ -185,8 +214,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 10,
-    borderBottomWidth: 0.2,
-    borderColor: COLORS.BLACK,
+    borderBottomWidth: 2,
+    borderColor: COLORS.GRAY,
     paddingHorizontal: 20,
   },
   totalText: {

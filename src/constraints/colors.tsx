@@ -14,6 +14,7 @@ const COLORS: {[key: string]: string} = {
   GRAY: '#D9DFDF',
   BROWN: '#A0212D',
   PINK: '#ffe7e7',
+  RED:'#FF0000'
 };
 
 export default COLORS;
