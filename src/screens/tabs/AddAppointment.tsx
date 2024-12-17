@@ -123,6 +123,7 @@ const AddAppointment: React.FC = () => {
         <DatePicker
           modal
           open={showDatePicker}
+          theme='light'
           date={date}
           onConfirm={selectedDate => handleDateChange(selectedDate)}
           onCancel={() => setShowDatePicker(false)}

@@ -38,58 +38,58 @@ type LoginScreenProps = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const handleLogin = async (values: {email: string; password: string}) => {
-    // const payload = {
-    //   email: values.email,
-    //   password: values.password,
-    // };
-    // try {
-    //   const response = await axios.post(
-    //     'http://192.168.8.100:5000/api/auth/login',
-    //   payload,
-    //   );
-    //   if (response.status === 200) {
-    //     const {token, role} = response.data;
-    //     console.log('Login Successfully');
-    //     console.log('Token', token);
-    //     if (role === 'Patient') {
-    //       Toast.show({
-    //         type: 'error',
-    //         position: 'top',
-    //         text1: 'Login Successfull',
-    //         text2: response?.data?.message || 'user login successfully',
-    //       });
+    const payload = {
+      email: values.email,
+      password: values.password,
+    };
+    try {
+      const response = await axios.post(
+        'http://192.168.8.100:5000/api/auth/login',
+        payload,
+      );
+      if (response.status === 200) {
+        const {token, role} = response.data;
+        console.log('Login Successfully');
+        console.log('Token', token);
+        if (role === 'Patient') {
+          Toast.show({
+            type: 'success',
+            position: 'top',
+            text1: 'Login Successfull',
+            text2: response?.data?.message || 'user login successfully',
+          });
           setTimeout(() => {
             navigation.navigate('Drawer', {screen: 'TabNavigator'});
-            }, 1000);}
-  //       } else {
-  //         Toast.show({
-  //           type: 'error',
-  //           position: 'top',
-  //           text1: 'Login Failed',
-  //           text2: `Invalid Credentials`,
-  //         });
-  //       }
-  //     }
-  //   } catch (error) {
-  //     if (error instanceof AxiosError) {
-  //       Toast.show({
-  //         type: 'error',
-  //         position: 'top',
-  //         text1: 'Login Failed',
-  //         text2:
-  //           error.response?.data.error ||
-  //           'An error occurred. Please try again.',
-  //       });
-  //     } else {
-  //       Toast.show({
-  //         type: 'error',
-  //         position: 'top',
-  //         text1: 'Login Failed',
-  //         text2: 'An unexpected error occurred. Please try again.',
-  //       });
-  //     }
-  //   }
-  // };
+          }, 1000);
+        } else {
+          Toast.show({
+            type: 'error',
+            position: 'top',
+            text1: 'Login Failed',
+            text2: `Invalid Credentials`,
+          });
+        }
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        Toast.show({
+          type: 'error',
+          position: 'top',
+          text1: 'Login Failed',
+          text2:
+            error.response?.data.error ||
+            'An error occurred. Please try again.',
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          position: 'top',
+          text1: 'Login Failed',
+          text2: 'An unexpected error occurred. Please try again.',
+        });
+      }
+    }
+  };
 
   const openLink = (url: string) => {
     Linking.openURL(url).catch(err =>

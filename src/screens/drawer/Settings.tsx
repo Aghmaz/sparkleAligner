@@ -11,7 +11,7 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DatePicker from 'react-native-date-picker';
 import {Switch} from 'react-native-switch';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
@@ -21,7 +21,12 @@ type SettingsScreenNavigationProp = StackNavigationProp<any, 'Settings'>;
 const Settings = () => {
   const [wearAligner, setWearAligner] = useState<boolean>(true);
   const [timePickerVisible, setTimePickerVisible] = useState<boolean>(false);
-  const [selectedTime, setSelectedTime] = useState<string>('No Reminder');
+  const [selectedTime, setSelectedTime] = useState<Date>(() => {
+    const time = new Date();
+    time.setHours(22, 0, 0, 0);
+    return time;
+  });
+  const [displayTime, setDisplayTime] = useState<string>('No Reminder');
   const [themeModalVisible, setThemeModalVisible] = useState<boolean>(false);
   const [soundModalVisible, setSoundModalVisible] = useState<boolean>(false);
   const [weeksModalVisible, setWeeksModalVisible] = useState<boolean>(false);
@@ -129,16 +134,22 @@ const Settings = () => {
     }
   }, [startWeekModalVisible]);
 
-  const handleTimeChange = (event: any, time: Date | undefined): void => {
-    if (event.type === 'set' && time) {
-      const formattedTime = time.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-      setSelectedTime(formattedTime);
-    } else if (event.type === 'dismissed') {
-      setSelectedTime('No Reminder');
-    }
+  const formatTime = (date: Date): string => {
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+  };
+
+  const handleTimeConfirm = (time: Date): void => {
+    setSelectedTime(time);
+    setDisplayTime(formatTime(time));
+    setTimePickerVisible(false);
+  };
+
+  const resetReminder = (): void => {
+    setDisplayTime('No Reminder');
     setTimePickerVisible(false);
   };
 
@@ -192,7 +203,7 @@ const Settings = () => {
             <Icons.SYNC />
             <View>
               <Text style={styles.reminderTitle}>Switch Aligners</Text>
-              <Text style={styles.reminderSubtitle}>{selectedTime}</Text>
+              <Text style={styles.reminderSubtitle}>{displayTime}</Text>
             </View>
           </TouchableOpacity>
           <View style={styles.reminderItemContainer}>
@@ -480,12 +491,18 @@ const Settings = () => {
         </View>
       </Modal>
       {timePickerVisible && (
-        <DateTimePicker
+        <DatePicker
+          modal
+          open={timePickerVisible}
+          date={selectedTime}
+          theme="light"
+          onConfirm={handleTimeConfirm}
+          onCancel={resetReminder}
           mode="time"
-          value={new Date()}
-          is24Hour={false}
-          display="spinner"
-          onChange={handleTimeChange}
+          confirmText="CONFIRM"
+          cancelText="NO REMINDER"
+          title={'Remind me to switch aligners at'}
+          buttonColor={COLORS.BLUE_DARK}
         />
       )}
     </SafeAreaView>

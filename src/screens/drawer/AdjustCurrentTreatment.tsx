@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DatePicker from 'react-native-date-picker';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
 
@@ -54,7 +54,7 @@ const AdjustCurrentTreatment: React.FC = () => {
     setDateEditModal(!dateEditModal);
   };
 
-  const handleDateChange = (event: any, date: Date | undefined): void => {
+  const handleDateChange = (_event: any, date: Date | undefined): void => {
     const currentDate = date || new Date('2024-11-25');
     setSelectedDate(currentDate);
     toggleDateModal();
@@ -181,6 +181,7 @@ const AdjustCurrentTreatment: React.FC = () => {
   //   }
   // }, [daysEditModal]);
 
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -204,7 +205,7 @@ const AdjustCurrentTreatment: React.FC = () => {
                   {index === 0 ? (
                     <TouchableOpacity
                       activeOpacity={0.8}
-                      onPress={() => setDateEditModal(true)}
+                      onPress={toggleDateModal}
                       style={styles.startDateRow}>
                       <Icons.EDIT style={styles.iconOffset} />
                       <Text style={styles.startDateText}>
@@ -262,13 +263,18 @@ const AdjustCurrentTreatment: React.FC = () => {
         </View>
       </ScrollView>
       {dateEditModal && (
-        <DateTimePicker
-          value={selectedDate || new Date('2024-11-25')}
+        <DatePicker
+          modal
+          open={dateEditModal}
+          date={selectedDate || new Date('2024-11-25')}
+          theme="light"
+          onConfirm={date => handleDateChange(null, date)}
+          onCancel={toggleDateModal}
           mode="date"
-          display="calendar"
-          onChange={handleDateChange}
-          maximumDate={new Date()}
-          minimumDate={new Date('2024-01-01')}
+          confirmText="OK"
+          cancelText="CANCEL"
+          title={'Select Start Date'}
+          buttonColor={COLORS.BLUE_DARK}
         />
       )}
       <Modal transparent={true} animationType="slide" visible={daysEditModal}>

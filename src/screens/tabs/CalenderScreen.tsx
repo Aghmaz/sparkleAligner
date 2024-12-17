@@ -59,7 +59,10 @@ const CalenderScreen = () => {
       {isPlusOpen ? (
         <View style={styles.bottomContainer}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('AddTime')}
+            onPress={() => {
+              setIsPlusOpen(false);
+              navigation.navigate('AddTime');
+            }}
             activeOpacity={0.8}
             style={styles.iconRow}>
             <Text style={styles.textLabel}>Time</Text>
@@ -70,7 +73,10 @@ const CalenderScreen = () => {
             </Shadow>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate('AddAlignerSwitch')}
+            onPress={() => {
+              setIsPlusOpen(false);
+              navigation.navigate('AddAlignerSwitch');
+            }}
             activeOpacity={0.8}
             style={styles.iconRow}>
             <Text style={styles.textLabel}>Aligner Switch</Text>
@@ -81,7 +87,10 @@ const CalenderScreen = () => {
             </Shadow>
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => navigation.navigate('AddAppointment')}
+            onPress={() => {
+              setIsPlusOpen(false);
+              navigation.navigate('AddAppointment');
+            }}
             activeOpacity={0.8}
             style={styles.iconRow}>
             <Text style={styles.textLabel}>Ortho Appoinment</Text>

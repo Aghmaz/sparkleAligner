@@ -10,6 +10,7 @@ import {
   FlatList,
   ListRenderItem,
   TextInput,
+  TouchableWithoutFeedback
 } from 'react-native';
 import {AnimatedCircularProgress} from 'react-native-circular-progress';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
@@ -20,7 +21,7 @@ import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
 
 const {width} = Dimensions.get('window');
-const circularProgressSize = width * 0.8;
+const circularProgressSize = width * 0.812;
 const indicatorPosition = (20 / 24) * 360;
 
 type TimerScreenNavigationProp = DrawerNavigationProp<any, any>;
@@ -720,8 +721,10 @@ const TimerScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-      <Modal transparent={true} visible={isChatModalOpen} animationType="none">
-        <View style={styles.modalOverlay}>
+      <Modal transparent={true} visible={isChatModalOpen} animationType="slide">
+       <TouchableWithoutFeedback onPress={()=>setIsChatModalOpen(false)}>
+       <View style={styles.modalOverlay}>
+          <TouchableWithoutFeedback>
           <View
             style={{
               backgroundColor: COLORS.WHITE,
@@ -768,7 +771,9 @@ const TimerScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
           </View>
+          </TouchableWithoutFeedback>
         </View>
+       </TouchableWithoutFeedback>
       </Modal>
     </SafeAreaView>
   );

@@ -117,6 +117,7 @@ const AddAlignerSwitch: React.FC = () => {
           modal
           open={showDatePicker}
           date={date}
+           theme='light'
           onConfirm={selectedDate => handleDateChange(selectedDate)}
           onCancel={() => setShowDatePicker(false)}
           mode="datetime"

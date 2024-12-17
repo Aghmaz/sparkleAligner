@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
+import DatePicker from 'react-native-date-picker';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
 
@@ -9,6 +10,46 @@ type NavigationProps = NavigationProp<any>;
 
 const AddTime: React.FC = () => {
   const navigation = useNavigation<NavigationProps>();
+
+  const initialTookOffDate = new Date();
+  initialTookOffDate.setMinutes(initialTookOffDate.getMinutes() - 1);
+
+  const [tookOffDate, setTookOffDate] = useState(initialTookOffDate);
+  const [showTookOffDatePicker, setShowTookOffDatePicker] = useState(false);
+
+  const initialPutOnDate = new Date();
+
+  const [putOnDate, setPutOnDate] = useState(initialPutOnDate);
+  const [showPutOnDatePicker, setShowPutOnDatePicker] = useState(false);
+
+  const formatDate = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    };
+    return date.toLocaleString('en-US', options);
+  };
+
+  const handleTookOffDateChange = (selectedDate: Date) => {
+    setTookOffDate(selectedDate);
+    setShowTookOffDatePicker(false);
+  };
+
+  const handleTookOffDatePress = () => {
+    setShowTookOffDatePicker(true);
+  };
+  const handlePutOnDateChange = (selectedDate: Date) => {
+    setPutOnDate(selectedDate);
+    setShowPutOnDatePicker(false);
+  };
+
+  const handlePutOnDatePress = () => {
+    setShowPutOnDatePicker(true);
+  };
 
   const handleBackNavigation = (): void => {
     navigation.goBack();
@@ -26,19 +67,22 @@ const AddTime: React.FC = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.contentContainer}>
-        <View style={styles.row}>
+        <TouchableOpacity
+          onPress={handleTookOffDatePress}
+          activeOpacity={0.8}
+          style={styles.row}>
           <View style={styles.rowLeft}>
             <Icons.KNIFEANDFORK />
             <Text style={styles.rowTitle}>Took Off</Text>
           </View>
-          <Text style={styles.rowTime}>12/13/2024, 8:04 PM</Text>
-        </View>
+          <Text style={styles.rowTime}>{formatDate(tookOffDate)}</Text>
+        </TouchableOpacity>
         <View style={styles.row}>
           <View style={styles.rowLeft}>
             <Icons.LIKEBLACK />
             <Text style={styles.rowTitle}>Put On</Text>
           </View>
-          <Text style={styles.rowTime}>12/13/2024, 8:05 PM</Text>
+          <Text style={styles.rowTime}>{formatDate(putOnDate)}</Text>
         </View>
         <View style={styles.timeOptions}>
           <Text style={styles.timeOption}>5 min</Text>
@@ -52,6 +96,36 @@ const AddTime: React.FC = () => {
         <Text style={styles.footerDate}>12/13/2024</Text>
         <Text style={styles.footerDuration}>Out 1 min</Text>
       </View>
+      {showTookOffDatePicker && (
+        <DatePicker
+          modal
+          open={showTookOffDatePicker}
+          date={tookOffDate}
+          theme="light"
+          onConfirm={selectedDate => handleTookOffDateChange(selectedDate)}
+          onCancel={() => setShowTookOffDatePicker(false)}
+          mode="datetime"
+          confirmText="OK"
+          cancelText="CANCEL"
+          title={'Took my aligners off at'}
+          buttonColor={COLORS.BLUE_DARK}
+        />
+      )}
+      {showPutOnDatePicker && (
+        <DatePicker
+          modal
+          open={showPutOnDatePicker}
+          date={putOnDate}
+          theme="light"
+          onConfirm={selectedDate => handlePutOnDateChange(selectedDate)}
+          onCancel={() => setShowPutOnDatePicker(false)}
+          mode="datetime"
+          confirmText="OK"
+          cancelText="CANCEL"
+          title={'Put my aligners on at'}
+          buttonColor={COLORS.BLUE_DARK}
+        />
+      )}
     </SafeAreaView>
   );
 };
