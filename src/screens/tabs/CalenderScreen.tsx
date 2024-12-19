@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState,useEffect} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar} from 'react-native-calendars';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
@@ -14,6 +14,7 @@ type RootDrawerParamList = {
   AddAlignerSwitch: undefined;
   AddAppointment: undefined;
   AddNotes: {savedNote: string} | undefined;
+  AdjustCurrentTreatment:undefined
 };
 
 type CalendarScreenNavigationProp = DrawerNavigationProp<
@@ -24,9 +25,18 @@ type CalendarScreenNavigationProp = DrawerNavigationProp<
 const CalenderScreen = () => {
   const [selected, setSelected] = useState<string>('');
   const [isPlusOpen, setIsPlusOpen] = useState<boolean>(false);
-  const [currentMonth, setCurrentMonth] = useState<string>('November 2024');
+  const [currentMonth, setCurrentMonth] = useState<string>('');
   const navigation = useNavigation<CalendarScreenNavigationProp>();
   const route = useRoute<RouteProp<RootDrawerParamList, 'AddNotes'>>();
+
+
+  useEffect(() => {
+    const formattedMonth = today.toLocaleString('default', {
+      month: 'long',
+      year: 'numeric',
+    });
+    setCurrentMonth(formattedMonth);
+  }, []);
 
   const note = route.params?.savedNote;
 
@@ -160,7 +170,9 @@ const CalenderScreen = () => {
           />
           <View style={styles.infoBar}>
             <Text style={styles.totalText}>Total: {'<'} 1 min</Text>
-            <Text style={styles.alignerText}>Aligner #1</Text>
+            <Text 
+            onPress={()=>navigation.navigate('AdjustCurrentTreatment')}
+            style={styles.alignerText}>Aligner #1</Text>
           </View>
           {note && (
             <View
@@ -183,10 +195,10 @@ const CalenderScreen = () => {
               </Text>
             </View>
           )}
-          <View style={styles.detailsBar}>
+          {/* <View style={styles.detailsBar}>
             <Icons.LIKE />
             <Text style={styles.detailsText}>15 hr 50 min</Text>
-          </View>
+          </View> */}
           <TouchableOpacity
             onPress={togglePlus}
             activeOpacity={0.8}

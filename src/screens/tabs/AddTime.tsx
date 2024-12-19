@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
@@ -54,6 +54,28 @@ const AddTime: React.FC = () => {
   const handleBackNavigation = (): void => {
     navigation.goBack();
   };
+  const [currentDate, setCurrentDate] = useState<string>('');
+
+  const formatDateWithoutTime = (date: Date) => {
+    const options: Intl.DateTimeFormatOptions = {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric',
+    };
+    return date.toLocaleString('en-US', options);
+  };
+
+  useEffect(() => {
+    setCurrentDate(formatDateWithoutTime(new Date()));
+  }, []);
+
+  const [duration, setDuration] = useState<number>(1);
+
+  const handleTimeOptionPress = (selectedDuration: number) => {
+    setDuration(selectedDuration);
+  };
+
+  const timeOptions = [5, 15, 30, 45, 60];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -77,24 +99,32 @@ const AddTime: React.FC = () => {
           </View>
           <Text style={styles.rowTime}>{formatDate(tookOffDate)}</Text>
         </TouchableOpacity>
-        <View style={styles.row}>
+        <TouchableOpacity
+          onPress={handlePutOnDatePress}
+          activeOpacity={0.8}
+          style={styles.row}>
           <View style={styles.rowLeft}>
             <Icons.LIKEBLACK />
             <Text style={styles.rowTitle}>Put On</Text>
           </View>
           <Text style={styles.rowTime}>{formatDate(putOnDate)}</Text>
-        </View>
+        </TouchableOpacity>
         <View style={styles.timeOptions}>
-          <Text style={styles.timeOption}>5 min</Text>
-          <Text style={styles.timeOption}>15 min</Text>
-          <Text style={styles.timeOption}>30 min</Text>
-          <Text style={styles.timeOption}>45 min</Text>
-          <Text style={styles.timeOption}>1 hr</Text>
+          {timeOptions.map(time => (
+            <Text
+              key={time}
+              style={styles.timeOption}
+              onPress={() => handleTimeOptionPress(time)}>
+              {time === 60 ? 1 : time} {time === 60 ? 'hr' : 'min'}
+            </Text>
+          ))}
         </View>
       </View>
       <View style={styles.footer}>
-        <Text style={styles.footerDate}>12/13/2024</Text>
-        <Text style={styles.footerDuration}>Out 1 min</Text>
+        <Text style={styles.footerDate}>{currentDate}</Text>
+        <Text style={styles.footerDuration}>
+          Out {duration === 60 ? 1 : duration} {duration === 60 ? 'hr' : 'min'}
+        </Text>
       </View>
       {showTookOffDatePicker && (
         <DatePicker

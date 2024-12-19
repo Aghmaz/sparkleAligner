@@ -29,13 +29,18 @@ const AdjustCurrentTreatment: React.FC = () => {
   const [alignersCountChangeModal, setAlignersCountChangeModal] =
     useState<boolean>(false);
   const [aligners, setAligners] = useState<Aligner[]>([]);
-  const [selectedAligner, setSelectedAligner] = useState<number | 3>(3);
+  const [selectedAligner, setSelectedAligner] = useState<number | 1>(1);
+  const [selectedAlignerDays, setSelectedAlignerDays] = useState<number>(14);
   const [dateEditModal, setDateEditModal] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date('2024-11-25'),
   );
   const [totalAligners, setTotalAligners] = useState(30);
-  const [selectedAlignersCount, setSelectedAlignersCount] = useState(27);
+  const [selectedAlignersCount, setSelectedAlignersCount] = useState(29);
+  const [prevSelectedDays, setPrevSelectedDays] = useState(selectedAlignerDays);
+  const [prevTotalAligners, setPrevTotalAligners] = useState(
+    selectedAlignersCount,
+  );
 
   const navigation = useNavigation<NavigationProps>();
 
@@ -54,39 +59,38 @@ const AdjustCurrentTreatment: React.FC = () => {
     setDateEditModal(!dateEditModal);
   };
 
+  const handleAlignersCountConfirm = () => {
+    setPrevTotalAligners(selectedAlignersCount);
+    setTotalAligners(selectedAlignersCount + 1);
+    toggleModal('alignersCountChangeModal');
+  };
+
+  const handleAlignersCountCancel = () => {
+    setSelectedAlignersCount(prevTotalAligners);
+    toggleModal('alignersCountChangeModal');
+  };
+
   const handleDateChange = (_event: any, date: Date | undefined): void => {
     const currentDate = date || new Date('2024-11-25');
     setSelectedDate(currentDate);
     toggleDateModal();
-
-    // const updatedAligners = aligners.map((aligner, index) => {
-    //   const startDate =
-    //     index === 0 ? currentDate : new Date(aligners[index - 1].endDateObj);
-    //   const endDate = new Date(startDate);
-    //   endDate.setDate(
-    //     startDate.getDate() + parseInt(aligner.duration.split(' ')[0]),
-    //   );
-
-    //   return {
-    //     ...aligner,
-    //     startDate: startDate.toLocaleDateString(),
-    //     endDate: endDate.toLocaleDateString(),
-    //     startDateObj: startDate,
-    //     endDateObj: endDate,
-    //   };
-    // });
-
-    // setAligners(updatedAligners);
   };
 
   const handleDaysPress = (day: number): void => {
+    setSelectedAlignerDays(day);
+  };
+
+  const handleConfirmDaysPress = (): void => {
     const updatedAligners = [...aligners];
     const selectedAlignerIndex = updatedAligners.findIndex(
       aligner => aligner.number === selectedAligner,
     );
 
     if (selectedAlignerIndex !== -1) {
-      updatedAligners[selectedAlignerIndex].duration = `${day} Days`;
+      const durationSuffix = selectedAlignerDays === 1 ? 'Day' : 'Days';
+      updatedAligners[
+        selectedAlignerIndex
+      ].duration = `${selectedAlignerDays} ${durationSuffix}`;
 
       const initialDate = selectedDate ?? new Date('2024-11-25');
 
@@ -98,7 +102,7 @@ const AdjustCurrentTreatment: React.FC = () => {
 
         const duration =
           i === selectedAlignerIndex
-            ? day
+            ? selectedAlignerDays
             : parseInt(updatedAligners[i].duration.split(' ')[0]);
 
         const startDate = new Date(previousEndDate);
@@ -115,6 +119,7 @@ const AdjustCurrentTreatment: React.FC = () => {
       }
       setAligners(updatedAligners);
       toggleModal('daysEditModal');
+      setPrevSelectedDays(selectedAlignerDays);
     }
   };
 
@@ -127,14 +132,18 @@ const AdjustCurrentTreatment: React.FC = () => {
         i === 0
           ? initialDate
           : new Date(alignersData[i - 1]?.endDateObj || initialDate);
-      const duration: number = 14;
+      const duration: number = parseInt(
+        aligners[i]?.duration?.split(' ')[0] || '14',
+        10,
+      );
+      const durationSuffix = duration === 1 ? 'Day' : 'Days';
       const startDate: Date = new Date(previousEndDate);
       const endDate: Date = new Date(startDate);
       endDate.setDate(startDate.getDate() + duration);
 
       alignersData.push({
         number: i + 1,
-        duration: `${duration} Days`,
+        duration: `${duration} ${durationSuffix}`,
         startDate: startDate.toLocaleDateString(),
         endDate: endDate.toLocaleDateString(),
         startDateObj: startDate,
@@ -152,35 +161,39 @@ const AdjustCurrentTreatment: React.FC = () => {
   const days: number[] = Array.from({length: 180}, (_, index) => index + 1);
 
   const alignersCount: number[] = Array.from(
-    {length: 148},
-    (_, index) => index + 3,
+    {length: 150},
+    (_, index) => index + 1,
   );
 
   const handleAlignerSelect = (alignerNumber: number): void => {
     toggleModal('daysEditModal');
-    setSelectedAligner(prevSelected =>
-      prevSelected === alignerNumber ? 3 : alignerNumber,
-    );
+    setSelectedAligner(alignerNumber);
+
+    const aligner = aligners.find(aligner => aligner.number === alignerNumber);
+    if (aligner) {
+      setSelectedAlignerDays(parseInt(aligner.duration.split(' ')[0], 10));
+    }
+    if (daysscrollViewRef.current) {
+      const dayPosition = (selectedAlignerDays - 1) * 37;
+      daysscrollViewRef.current.scrollTo({y: dayPosition, animated: true});
+    }
   };
 
-  // useEffect(() => {
-  //   if (alignersCountChangeModal && scrollViewRef.current) {
-  //     scrollViewRef.current.scrollTo({
-  //       y: selectedAlignersCount * 37,
-  //       animated: true,
-  //     });
-  //   }
-  // }, [alignersCountChangeModal]);
+  useEffect(() => {
+    if (alignersCountChangeModal && scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        y: selectedAlignersCount * 37,
+        animated: true,
+      });
+    }
+  }, [alignersCountChangeModal]);
 
-  // useEffect(() => {
-  //   if (daysEditModal && daysscrollViewRef.current) {
-  //     daysscrollViewRef.current.scrollTo({
-  //       y: selectedAligner * 37,
-  //       animated: true,
-  //     });
-  //   }
-  // }, [daysEditModal]);
-
+  useEffect(() => {
+    if (daysEditModal && daysscrollViewRef.current) {
+      const dayPosition = (selectedAlignerDays - 1) * 37;
+      daysscrollViewRef.current.scrollTo({y: dayPosition, animated: true});
+    }
+  }, [daysEditModal, selectedAlignerDays]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -273,7 +286,7 @@ const AdjustCurrentTreatment: React.FC = () => {
           mode="date"
           confirmText="OK"
           cancelText="CANCEL"
-          title={'Select Start Date'}
+          title={'My treatment started on'}
           buttonColor={COLORS.BLUE_DARK}
         />
       )}
@@ -294,7 +307,7 @@ const AdjustCurrentTreatment: React.FC = () => {
                   onPress={() => handleDaysPress(day)}
                   style={[
                     styles.alignTextContainer,
-                    // selectedAligner === index && styles.selectedAligner,
+                    selectedAlignerDays === index + 1 && styles.selectedAligner,
                     index === days.length - 1 && {
                       marginBottom: 120,
                     },
@@ -305,11 +318,16 @@ const AdjustCurrentTreatment: React.FC = () => {
             </ScrollView>
             <View style={styles.btnsConatiner}>
               <Text
-                onPress={() => toggleModal('daysEditModal')}
+                onPress={() => {
+                  setSelectedAlignerDays(prevSelectedDays);
+                  toggleModal('daysEditModal');
+                }}
                 style={styles.btnText}>
                 CANCEL
               </Text>
-              <Text style={styles.btnText}>CONFIRM</Text>
+              <Text onPress={handleConfirmDaysPress} style={styles.btnText}>
+                CONFIRM
+              </Text>
             </View>
           </View>
         </View>
@@ -359,17 +377,10 @@ const AdjustCurrentTreatment: React.FC = () => {
               ))}
             </ScrollView>
             <View style={styles.btnsConatiner}>
-              <Text
-                onPress={() => toggleModal('alignersCountChangeModal')}
-                style={styles.btnText}>
+              <Text onPress={handleAlignersCountCancel} style={styles.btnText}>
                 CANCEL
               </Text>
-              <Text
-                onPress={() => {
-                  setTotalAligners(selectedAlignersCount + 3);
-                  toggleModal('alignersCountChangeModal');
-                }}
-                style={styles.btnText}>
+              <Text onPress={handleAlignersCountConfirm} style={styles.btnText}>
                 CONFIRM
               </Text>
             </View>

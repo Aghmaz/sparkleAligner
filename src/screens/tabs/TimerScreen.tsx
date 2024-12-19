@@ -484,11 +484,11 @@ const TimerScreen: React.FC = () => {
             {
               transform: [
                 {
-                  translateX: circularProgressSize / 3.15,
+                  translateX: circularProgressSize / 3.1,
                 },
                 {rotate: `${indicatorPosition}deg`},
                 {
-                  translateX: -circularProgressSize / 2.1,
+                  translateX: -circularProgressSize / 2,
                 },
               ],
             },
@@ -894,12 +894,12 @@ const styles = StyleSheet.create({
     width: 3,
     height: 25,
     position: 'absolute',
-    top: 0,
+    top: -1,
     backgroundColor: COLORS.GRAY_DARK,
   },
   progressIndicatorText: {
     position: 'absolute',
-    top: 25,
+    top: 27,
     fontSize: 12,
     color: COLORS.GRAY_DARK,
     fontFamily: 'Roboto-Bold',
