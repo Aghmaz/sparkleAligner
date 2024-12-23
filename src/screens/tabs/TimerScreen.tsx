@@ -505,9 +505,8 @@ const TimerScreen: React.FC = () => {
         <View
           style={{
             position: 'absolute',
-            bottom: 0,
+            bottom: -10,
             right: 0,
-            paddingBottom: 2,
             paddingRight: 1.5,
           }}>
           <Shadow>

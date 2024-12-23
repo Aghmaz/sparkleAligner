@@ -14,6 +14,7 @@ import {CropView} from 'react-native-image-crop-tools';
 import {Shadow} from 'react-native-shadow-2';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
+import axios from 'axios';
 
 const PermissionsPage: React.FC = () => (
   <View style={styles.centeredMessageContainer}>
@@ -38,8 +39,15 @@ const CameraScreen: React.FC = () => {
   const [currentDevice, setCurrentDevice] = useState<'front' | 'back'>('front');
   const [flashState, setFlashState] = useState<'off' | 'on'>('off');
   const [zoomLevel, setZoomLevel] = useState<1 | 2>(1);
+  const [uploading, setUploading] = useState<boolean>(false);
+
 
   const navigation = useNavigation<CameraScreenNavigationProp>();
+  // // Cloudinary credentials
+  // const CLOUD_NAME = 'dbtjfmmf9';
+  // const API_KEY = '158646382266981';
+  // const API_SECRET = '5EEjkWe5gb6RI7xBCn9hIT_tX4w';
+  // const UPLOAD_URL = `https://api.cloudinary.com/v1_1/dbtjfmmf9/image/upload`;
 
   const {hasPermission, requestPermission} = useCameraPermission();
   const device = useCameraDevice(currentDevice);
@@ -60,7 +68,6 @@ const CameraScreen: React.FC = () => {
     checkPermissions();
   }, [hasPermission, requestPermission]);
 
-
   const capturePhoto = async (): Promise<void> => {
     if (cameraRef.current) {
       try {
@@ -76,7 +83,6 @@ const CameraScreen: React.FC = () => {
       }
     }
   };
-  
 
   const toggleCamera = (): void => {
     setCurrentDevice(prevDevice => (prevDevice === 'front' ? 'back' : 'front'));
@@ -89,7 +95,7 @@ const CameraScreen: React.FC = () => {
       console.warn('Flash is not available for the current camera');
     }
   };
-  
+
   const toggleZoom = (): void => {
     setZoomLevel(prevZoom => (prevZoom === 1 ? 2 : 1));
   };
@@ -109,9 +115,45 @@ const CameraScreen: React.FC = () => {
         if (uri) {
           setPhotoUri(uri);
           setIsCropping(true);
+          uploadImageToCloudinary(uri);
         }
       }
     });
+  };
+
+  const uploadImageToCloudinary = async (uri: string) => {
+    const data = new FormData();
+    const filename = uri.split('/').pop();
+
+    // Build the form data with the image
+    data.append('file', {
+      uri,
+      name: filename,
+      type: 'image/jpeg', // Ensure you match the type of the file
+    } as any); // Type assertion to prevent TypeScript error
+
+    data.append('upload_preset', 'aneela'); // Cloudinary upload preset
+    data.append('api_key', '158646382266981'); // API Key from your Cloudinary account
+
+    setUploading(true);
+
+    try {
+      const response = await axios.post(
+        'https://api.cloudinary.com/v1_1/dbtjfmmf9/image/upload',
+        data,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      console.log('Cloudinary Response: ', response.data);
+      setUploading(false);
+      setImageUrl(response.data.secure_url); // Cloudinary URL of uploaded image
+    } catch (error) {
+      console.error('Upload error: ', error);
+      setUploading(false);
+    }
   };
 
   const onImageCrop = (res: {uri: string}) => {

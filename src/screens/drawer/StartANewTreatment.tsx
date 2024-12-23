@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,6 +6,8 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Modal,
+  ScrollView,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Shadow} from 'react-native-shadow-2';
@@ -20,6 +22,12 @@ const StartANewTreatment: React.FC = () => {
     useState<boolean>(false);
   const [isDeletePhotosChecked, setIsDeletePhotosChecked] =
     useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [totalAlignersCount, setTotalAlignersCount] = useState(30);
+  const [prevTotalAlignersCount, setPrevTotalAlignersCount] =
+    useState(totalAlignersCount);
+
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const navigation = useNavigation();
 
@@ -29,6 +37,80 @@ const StartANewTreatment: React.FC = () => {
     } else if (activeStep >= 0) {
       setActiveStep(activeStep + 1);
     }
+  };
+
+  const alignersCount: number[] = Array.from(
+    {length: 150},
+    (_, index) => index + 1,
+  );
+
+  const alignerDays: number[] = Array.from(
+    {length: 180},
+    (_, index) => index + 1,
+  );
+
+  const treatmentValues: string[] = Array.from({length: 3}, (_, index) => {
+    const themes = [
+      '3D Predict',
+      '3D Smile',
+      '3M Clarity',
+      'Active Aligners',
+      'Angel Align',
+      'Candid',
+      'Clear Diamond',
+      'ClearCorrect',
+      'CristaLine Aligners',
+      'Crystal Clear Aligners',
+      'Custom "A"ligners',
+      'Dentist Malaya Clear Aligner',
+      'Digiortho',
+      'Easy Smile',
+      'eCligner',
+      'Econ Aligner',
+      'Fixalign',
+      'I-Align',
+      'Insignia Clearguide',
+      'Invisalign',
+      'jerushaligne',
+      'LIne-M-Up',
+      'LovmySmile',
+      'Myaligner',
+      'NU Smile Aligner',
+      'Orthero',
+      'Orthly',
+      'OrthoAlign',
+      'Orthoclear',
+      'Others',
+      'Othocaps',
+      'Perfect Fit',
+      'Precisalign',
+      'SLX',
+      'Smartee',
+      'SmileCode',
+      'SmileDirectClub',
+      'Smilelove',
+      'Spark',
+      'StarSmiles',
+      'SureSmile',
+      'UGrin',
+      'Uniform Teeth',
+    ];
+    return themes[index % themes.length];
+  });
+
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
+  };
+
+  const handleTotalAlignersCountConfirm = () => {
+    setPrevTotalAlignersCount(totalAlignersCount);
+    setTotalAlignersCount(totalAlignersCount);
+    toggleModal();
+  };
+
+  const handleTotalAlignersCountCancel = () => {
+    setTotalAlignersCount(prevTotalAlignersCount);
+    toggleModal();
   };
 
   const setupText =
@@ -45,7 +127,14 @@ const StartANewTreatment: React.FC = () => {
       : activeStep === 5
       ? 'Number of days you have been wearing your current aligner'
       : 'Remind me to switch aligners at';
-
+  useEffect(() => {
+    if (modalVisible && scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        y: (totalAlignersCount - 1.5) * 37,
+        animated: true,
+      });
+    }
+  }, [modalVisible]);
   return (
     <SafeAreaView style={styles.container}>
       <Image
@@ -97,7 +186,10 @@ const StartANewTreatment: React.FC = () => {
         ) : (
           <>
             <Text style={styles.setupText}>{setupText}</Text>
-            <View style={styles.alignerInfoContainer}>
+            <TouchableOpacity
+              onPress={toggleModal}
+              activeOpacity={0.8}
+              style={styles.alignerInfoContainer}>
               {activeStep === 6 ? (
                 <Icons.ALARM
                   height={20}
@@ -112,7 +204,7 @@ const StartANewTreatment: React.FC = () => {
                 {activeStep === 1
                   ? 'Invisalign'
                   : activeStep === 2
-                  ? '30'
+                  ? `${totalAlignersCount}`
                   : activeStep === 3
                   ? '14'
                   : activeStep === 4
@@ -121,7 +213,7 @@ const StartANewTreatment: React.FC = () => {
                   ? '0'
                   : '10:00 PM'}
               </Text>
-            </View>
+            </TouchableOpacity>
           </>
         )}
       </View>
@@ -159,6 +251,66 @@ const StartANewTreatment: React.FC = () => {
           {activeStep === 6 ? 'Done' : 'Next'}
         </Text>
       </TouchableOpacity>
+      <Modal transparent={true} animationType="slide" visible={modalVisible}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>{setupText}</Text>
+            <ScrollView
+              ref={scrollViewRef}
+              showsVerticalScrollIndicator={false}
+              style={styles.scrollView}>
+              {(activeStep === 2 ? alignersCount : alignerDays).map(
+                (alignerCount, index) => (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => setTotalAlignersCount(index + 1)}
+                    key={index}
+                    style={[
+                      styles.alignTextContainer,
+                      totalAlignersCount === index + 1 &&
+                        styles.selectedAligner,
+                      index ===
+                        (activeStep === 2 ? alignersCount : alignerDays)
+                          .length -
+                          1 && {
+                        marginBottom: 120,
+                      },
+                    ]}>
+                    <Text
+                      style={[
+                        styles.alignText,
+                        totalAlignersCount === index + 1 &&
+                          styles.selectedAlignerText,
+                        {
+                          opacity:
+                            totalAlignersCount === index + 1 ||
+                            totalAlignersCount === index + 1 + 1 ||
+                            totalAlignersCount === index + 1 - 1
+                              ? 1
+                              : 0.5,
+                        },
+                      ]}>
+                      {alignerCount}
+                    </Text>
+                  </TouchableOpacity>
+                ),
+              )}
+            </ScrollView>
+            <View style={styles.btnsConatiner}>
+              <Text
+                onPress={handleTotalAlignersCountCancel}
+                style={styles.btnText}>
+                CANCEL
+              </Text>
+              <Text
+                onPress={handleTotalAlignersCountConfirm}
+                style={styles.btnText}>
+                CONFIRM
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -175,6 +327,63 @@ const styles = StyleSheet.create({
     width: '100%',
     borderBottomLeftRadius: 80,
     borderBottomRightRadius: 80,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: '85%',
+    backgroundColor: COLORS.WHITE,
+    borderRadius: 25,
+  },
+  modalTitle: {
+    fontFamily: 'Roboto-Medium',
+    fontSize: 20,
+    color: COLORS.BLACK,
+    borderBottomWidth: 1,
+    borderColor: COLORS.GRAY_LIGHT,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+  },
+  scrollView: {
+    height: 200,
+    paddingTop: 70,
+  },
+  alignTextContainer: {
+    alignItems: 'center',
+  },
+  alignText: {
+    fontFamily: 'Roboto-Medium',
+    fontSize: 20,
+    color: COLORS.GRAY_DARK,
+    paddingBottom: 10,
+  },
+  selectedAligner: {
+    backgroundColor: COLORS.GRAY,
+    paddingTop: 7,
+    marginHorizontal: 10,
+    borderRadius: 10,
+  },
+  selectedAlignerText: {
+    color: COLORS.BLACK,
+  },
+  btnsConatiner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 30,
+    padding: 30,
+    justifyContent: 'flex-end',
+    borderTopWidth: 1,
+    borderColor: COLORS.GRAY_LIGHT,
+    marginTop: 15,
+  },
+  btnText: {
+    fontFamily: 'Roboto-Bold',
+    fontSize: 14,
+    color: COLORS.BLUE_DARK,
   },
   appText: {
     fontSize: 25,
@@ -229,9 +438,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 15,
-    paddingTop: 50,
-    paddingBottom: 60,
+    marginTop: 70,
+    marginBottom: 60,
     alignSelf: 'center',
+    padding: 5,
   },
   alignerIcon: {
     top: 2,

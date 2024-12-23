@@ -476,6 +476,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 5,
     paddingTop: 10,
+    paddingBottom: 40,
     alignSelf: 'center',
   },
   totalAlignerText: {
