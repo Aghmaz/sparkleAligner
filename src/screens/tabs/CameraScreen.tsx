@@ -9,8 +9,9 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
 import {useNavigation} from '@react-navigation/native';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {CropView} from 'react-native-image-crop-tools';
+import DocumentPicker, {types} from 'react-native-document-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 import {Shadow} from 'react-native-shadow-2';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
@@ -32,15 +33,14 @@ type CameraScreenNavigationProp = DrawerNavigationProp<any, any>;
 
 const CameraScreen: React.FC = () => {
   const [isPermissionGranted, setPermissionGranted] = useState<boolean>(false);
-  const [isCropping, setIsCropping] = useState<boolean>(false);
   const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
-  const [isPlusOpen, setIsPlusOpen] = useState<boolean>(true);
   const [currentDevice, setCurrentDevice] = useState<'front' | 'back'>('front');
   const [flashState, setFlashState] = useState<'off' | 'on'>('off');
   const [zoomLevel, setZoomLevel] = useState<1 | 2>(1);
   const [uploading, setUploading] = useState<boolean>(false);
-
+  const [imageUrl, setImageUrl] = useState(null);
+  const [userID, setUserID] = useState<string | null>(null);
 
   const navigation = useNavigation<CameraScreenNavigationProp>();
   // // Cloudinary credentials
@@ -53,7 +53,6 @@ const CameraScreen: React.FC = () => {
   const device = useCameraDevice(currentDevice);
 
   const cameraRef = useRef<Camera | null>(null);
-  const cropViewRef = useRef<any>(null);
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -75,9 +74,13 @@ const CameraScreen: React.FC = () => {
           flash: flashState,
         };
         const photo = await cameraRef.current.takePhoto(options);
-        setPhotoUri('file://' + photo.path);
+        const photoUri = 'file://' + photo.path;
+        setPhotoUri(photoUri);
         setIsCameraActive(false);
-        setIsPlusOpen(false);
+        saveImageUrlToDatabase(
+          'https://res.cloudinary.com/aneelacloud/raw/upload/v1735231132/lzq2aeejelgkg5a3c050.stl',
+        );
+        // uploadFileToCloudinary(photoUri, 'image/jpeg');
       } catch (error) {
         console.error('Error capturing photo:', error);
       }
@@ -100,65 +103,130 @@ const CameraScreen: React.FC = () => {
     setZoomLevel(prevZoom => (prevZoom === 1 ? 2 : 1));
   };
 
-  const togglePlus = (): void => {
-    setIsPlusOpen(!isPlusOpen);
-  };
+  const chooseFromLibrary = async (): Promise<void> => {
+    try {
+      const file = await DocumentPicker.pickSingle({
+        type: [
+          types.images,
+          types.pdf,
+          'application/vnd.ms-pki.stl',
+          'video/mp4',
+        ],
+      });
 
-  const chooseFromLibrary = (): void => {
-    launchImageLibrary({mediaType: 'photo', quality: 0.5}, response => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorMessage) {
-        console.error('ImagePicker Error: ', response.errorMessage);
-      } else if (response.assets && response.assets.length > 0) {
-        const uri = response.assets[0].uri;
-        if (uri) {
-          setPhotoUri(uri);
-          setIsCropping(true);
-          uploadImageToCloudinary(uri);
-        }
+      if (file.uri && file.type) {
+        console.log('Selected file:', file);
+        // uploadFileToCloudinary(file.uri, file.type);
+        saveImageUrlToDatabase(
+          'https://res.cloudinary.com/aneelacloud/raw/upload/v1735231132/lzq2aeejelgkg5a3c050.stl',
+        );
       }
-    });
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('User cancelled file picker');
+      } else {
+        console.error('File Picker Error: ', err);
+      }
+    }
   };
 
-  const uploadImageToCloudinary = async (uri: string) => {
+  useEffect(() => {
+    const getUserId = async () => {
+      const ID = await AsyncStorage.getItem('userId');
+      if (ID !== null) setUserID(ID);
+    };
+    getUserId();
+  }, []);
+
+  const uploadFileToCloudinary = async (uri: string, mimeType: string) => {
     const data = new FormData();
     const filename = uri.split('/').pop();
+    console.log(uri, 'uri==================');
+    console.log(filename, 'filename===================');
+    console.log(mimeType, 'mimeType====================');
 
-    // Build the form data with the image
     data.append('file', {
       uri,
       name: filename,
-      type: 'image/jpeg', // Ensure you match the type of the file
-    } as any); // Type assertion to prevent TypeScript error
+      type: mimeType,
+    } as any);
 
-    data.append('upload_preset', 'aneela'); // Cloudinary upload preset
-    data.append('api_key', '158646382266981'); // API Key from your Cloudinary account
+    data.append('upload_preset', 'aneela');
+    // data.append("cloud_name", "aneelacloud");
+    data.append('api_key', '158646382266981');
 
     setUploading(true);
 
+    console.log(data, 'data==================');
+
     try {
-      const response = await axios.post(
-        'https://api.cloudinary.com/v1_1/dbtjfmmf9/image/upload',
-        data,
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/aneelacloud/auto/upload", 
         {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
+          method: "POST",
+          body: data, 
+        }
       );
-      console.log('Cloudinary Response: ', response.data);
+      console.log('Cloudinary Response: ', response);
+      setTimeout(() => {
+        Toast.show({
+          type: 'success',
+          text1: 'File Uploaded Successfully',
+          text2: 'Your file has been uploaded.',
+        });
+      }, 2000);
+      // const uploadedImageUrl = response.data.secure_url;
       setUploading(false);
-      setImageUrl(response.data.secure_url); // Cloudinary URL of uploaded image
+      // setImageUrl(uploadedImageUrl);
+      // saveImageUrlToDatabase(uploadedImageUrl);
     } catch (error) {
       console.error('Upload error: ', error);
       setUploading(false);
     }
   };
-
-  const onImageCrop = (res: {uri: string}) => {
-    setPhotoUri(res.uri);
-    setIsCropping(false);
+  const saveImageUrlToDatabase = async (imageUrl: string) => {
+    try {
+      const userId = userID;
+      const response = await fetch(
+        `http://192.168.8.100:5000/api/auth/user/${userId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      const existingData = await response.json();
+      const mediaArray = existingData.media || [];
+      mediaArray.push({
+        fileUrl: imageUrl,
+        uploadedAt: new Date(),
+      });
+      const updateResponse = await fetch(
+        `http://192.168.8.100:5000/api/auth/user/${userId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            media: mediaArray,
+          }),
+        },
+      );
+      if (!updateResponse.ok) {
+        throw new Error('Failed to save the URL to the database');
+      }
+      const updateResponseData = await updateResponse.json();
+      console.log('Response from backend: ', updateResponseData);
+    } catch (error) {
+      console.error('Error saving URL to database: ', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to save the URL',
+        text2: 'There was an issue saving the file URL to the database.',
+      });
+    }
   };
 
   if (!isPermissionGranted) return <PermissionsPage />;
@@ -166,32 +234,30 @@ const CameraScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
-      {isPlusOpen ? (
-        <View style={styles.actionButtonContainer}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={styles.actionButtonRow}
-            onPress={() => setIsCameraActive(true)}>
-            <Text style={styles.actionButtonText}>Take Photo</Text>
-            <Shadow>
-              <View style={styles.iconButtonWrapper}>
-                <Icons.CAMERASKYBLUE />
-              </View>
-            </Shadow>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={chooseFromLibrary}
-            activeOpacity={0.8}
-            style={styles.actionButtonRow}>
-            <Text style={styles.actionButtonText}>Choose from Library</Text>
-            <Shadow>
-              <View style={styles.iconButtonWrapper}>
-                <Icons.LIBRARY />
-              </View>
-            </Shadow>
-          </TouchableOpacity>
-        </View>
-      ) : null}
+      <View style={styles.actionButtonContainer}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.actionButtonRow}
+          onPress={() => setIsCameraActive(true)}>
+          <Text style={styles.actionButtonText}>Take Photo</Text>
+          <Shadow>
+            <View style={styles.iconButtonWrapper}>
+              <Icons.CAMERASKYBLUE />
+            </View>
+          </Shadow>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={chooseFromLibrary}
+          activeOpacity={0.8}
+          style={styles.actionButtonRow}>
+          <Text style={styles.actionButtonText}>Choose from Library</Text>
+          <Shadow>
+            <View style={styles.iconButtonWrapper}>
+              <Icons.LIBRARY />
+            </View>
+          </Shadow>
+        </TouchableOpacity>
+      </View>
       {isCameraActive && (
         <>
           <Camera
@@ -244,177 +310,24 @@ const CameraScreen: React.FC = () => {
           </View>
         </>
       )}
-      {!isPlusOpen && photoUri && (
+      {uploading && (
+        <Text style={{padding: 20, fontFamily: 'Roboto-Medium', fontSize: 15}}>
+          UPLOADING ...
+        </Text>
+      )}
+      {photoUri && (
         <View
           style={{
             flex: 1,
             backgroundColor: COLORS.WHITE,
+            justifyContent: 'center',
+            alignItems: 'center',
           }}>
-          <View style={styles.header}>
-            <TouchableOpacity
-              onPress={() => navigation.openDrawer()}
-              activeOpacity={0.8}>
-              <Icons.MENU />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Teethies</Text>
-            <Icons.FAQ />
-          </View>
-          <View
-            style={{
-              backgroundColor: COLORS.GRAY,
-              flex: 7,
-            }}>
-            <Text
-              style={{
-                fontFamily: 'Roboto-Medium',
-                fontSize: 17,
-                color: COLORS.BLACK,
-                textAlign: 'center',
-              }}>
-              11/20/2024, 12:50 PM | Aligner #1
-            </Text>
-            <View>
-              <Image
-                resizeMode="cover"
-                source={{uri: photoUri}}
-                style={styles.photoPreviewImage}
-              />
-              <View
-                style={{
-                  width: '100%',
-                  position: 'absolute',
-                  bottom: '17%',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexDirection: 'row',
-                  paddingHorizontal: 10,
-                }}>
-                <Icons.EDITWHITE />
-                <Icons.FOLDERWHITE />
-                <Icons.CAMERAWHITE />
-                <Icons.SHAREWHITE />
-                <Icons.DELETE />
-              </View>
-            </View>
-            <Text
-              style={{
-                fontFamily: 'Roboto-Medium',
-                fontSize: 17,
-                color: COLORS.BLACK,
-                paddingHorizontal: 15,
-                paddingVertical: 10,
-                backgroundColor: COLORS.SKY_LIGHT,
-                alignSelf: 'center',
-                position: 'absolute',
-                bottom: 0,
-              }}>
-              #1
-            </Text>
-          </View>
-          <View
-            style={{
-              flex: 3,
-              alignItems: 'flex-end',
-              paddingRight: 10,
-              justifyContent: 'flex-end',
-              paddingBottom: 20,
-            }}>
-            <TouchableOpacity
-              onPress={togglePlus}
-              activeOpacity={0.8}
-              style={styles.plusIconContainer}>
-              <Icons.PLUS />
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-      {isCropping && photoUri && (
-        <View style={{flex: 1, backgroundColor: COLORS.BLACK}}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingHorizontal: 20,
-              padding: 18,
-              backgroundColor: '#0E1316ee',
-            }}>
-            <Text></Text>
-            <Text
-              style={{
-                fontFamily: 'Roboto-Regular',
-                fontSize: 22,
-                color: COLORS.WHITE,
-              }}>
-              Edit Photo
-            </Text>
-            <TouchableOpacity
-              onPress={() => {
-                setIsPlusOpen(!isPlusOpen);
-                setIsCropping(!isCropping);
-              }}
-              activeOpacity={0.8}>
-              <Icons.TICKWHITE />
-            </TouchableOpacity>
-          </View>
-          <CropView
-            sourceUrl={photoUri}
-            style={styles.cropView}
-            ref={cropViewRef}
-            onImageCrop={onImageCrop}
-            keepAspectRatio
-            aspectRatio={{width: 16, height: 9}}
+          <Image
+            resizeMode="cover"
+            source={{uri: photoUri}}
+            style={styles.photoPreviewImage}
           />
-          <View style={{position: 'absolute', top: '9.6%'}}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                backgroundColor: '#00000095',
-                width: '100%',
-                paddingHorizontal: 15,
-                paddingBottom: 13,
-                paddingTop: 50,
-              }}>
-              <Icons.Flip />
-              <Text
-                style={{
-                  color: COLORS.WHITE,
-                  fontSize: 17,
-                  fontFamily: 'Roboto-Medium',
-                }}>
-                11/20/2024, 4:18 PM
-              </Text>
-              <Text
-                style={{
-                  color: COLORS.WHITE,
-                  fontSize: 20,
-                  fontFamily: 'Roboto-Medium',
-                }}>
-                #1
-              </Text>
-            </View>
-            <View
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}>
-              <View style={styles.dashedLineVertical} />
-              <Image
-                style={{height: 200, width: 350}}
-                resizeMode="cover"
-                source={require('../../assets/images/teethFrame.png')}
-              />
-              <View style={styles.dashedLineHorizontal} />
-            </View>
-            <View
-              style={{
-                backgroundColor: '#00000095',
-                padding: 20,
-                height: '100%',
-              }}></View>
-          </View>
         </View>
       )}
     </SafeAreaView>
@@ -533,7 +446,7 @@ const styles = StyleSheet.create({
   },
   photoPreviewImage: {
     width: '100%',
-    height: '89.5%',
+    height: '50%',
   },
   plusIconContainer: {
     height: 60,

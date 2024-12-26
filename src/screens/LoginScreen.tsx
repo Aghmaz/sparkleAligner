@@ -14,6 +14,7 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import {Shadow} from 'react-native-shadow-2';
 import COLORS from '../constraints/colors';
@@ -48,9 +49,11 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
         payload,
       );
       if (response.status === 200) {
-        const {token, role} = response.data;
+        const {token, role, id} = response.data;
         console.log('Login Successfully');
         console.log('Token', token);
+        console.log('ID', id);
+        await AsyncStorage.setItem('userId', id);
         if (role === 'Patient') {
           Toast.show({
             type: 'success',
@@ -59,7 +62,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
             text2: response?.data?.message || 'user login successfully',
           });
           setTimeout(() => {
-            navigation.navigate('Drawer', {screen: 'TabNavigator'});
+            navigation.navigate('Drawer', {
+              screen: 'TabNavigator',
+            });
           }, 1000);
         } else {
           Toast.show({

@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^2.1.0",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/drawer": "^6.7.2",
     "@react-navigation/native": "^6.1.18",
@@ -24,9 +25,8 @@
     "react-native-check-box": "^2.1.7",
     "react-native-circular-progress": "^1.4.1",
     "react-native-date-picker": "^5.0.8",
+    "react-native-document-picker": "^9.3.1",
     "react-native-gesture-handler": "^2.20.2",
-    "react-native-image-crop-tools": "^1.6.4",
-    "react-native-image-picker": "^7.1.2",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-reanimated": "^3.16.1",
     "react-native-reanimated-carousel": "^3.5.1",
