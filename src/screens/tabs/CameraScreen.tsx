@@ -161,11 +161,11 @@ const CameraScreen: React.FC = () => {
 
     try {
       const response = await fetch(
-        "https://api.cloudinary.com/v1_1/aneelacloud/auto/upload", 
+        'https://api.cloudinary.com/v1_1/aneelacloud/auto/upload',
         {
-          method: "POST",
-          body: data, 
-        }
+          method: 'POST',
+          body: data,
+        },
       );
       console.log('Cloudinary Response: ', response);
       setTimeout(() => {
@@ -188,7 +188,7 @@ const CameraScreen: React.FC = () => {
     try {
       const userId = userID;
       const response = await fetch(
-        `http://192.168.8.100:5000/api/auth/user/${userId}`,
+        `http://192.168.10.7:5000/api/auth/user/${userId}`,
         {
           method: 'GET',
           headers: {
@@ -203,7 +203,7 @@ const CameraScreen: React.FC = () => {
         uploadedAt: new Date(),
       });
       const updateResponse = await fetch(
-        `http://192.168.8.100:5000/api/auth/user/${userId}`,
+        `http://192.168.10.7:5000/api/auth/user/${userId}`,
         {
           method: 'PUT',
           headers: {

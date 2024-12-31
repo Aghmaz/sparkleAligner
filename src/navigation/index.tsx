@@ -16,6 +16,7 @@ import AddAlignerSwitch from '../screens/tabs/AddAlignerSwitch';
 import Settings from '../screens/drawer/Settings';
 import CameraScreen from '../screens/tabs/CameraScreen';
 import AddAppointment from '../screens/tabs/AddAppointment';
+import TreatmentPreviews from '../screens/drawer/TreatmentPreviews';
 import AddTime from '../screens/tabs/AddTime';
 import AddNotes from '../screens/tabs/AddNotes';
 import Icons from '../assets/icons';
@@ -114,6 +115,14 @@ const DrawerContent = () => {
           activeOpacity={0.8}>
           <DrawerItem icon={Icons.FOLDER} text="Start a New Treatment" />
         </TouchableOpacity>
+        <TouchableOpacity
+        style={{marginLeft:-7}}
+          onPress={() =>
+            navigation.navigate('Drawer', {screen: 'TreatmentPreviews'})
+          }
+          activeOpacity={0.8}>
+          <DrawerItem icon={Icons.TEETH} text="Treatment Previews" />
+        </TouchableOpacity>
       </View>
       <View style={styles.drawerSection}>
         <DrawerItem icon={Icons.STAR} text="Review App" />
@@ -165,6 +174,13 @@ const DrawerNavigation = () => {
       <Drawer.Screen
         name="AdjustCurrentTreatment"
         component={AdjustCurrentTreatment}
+        options={{
+          drawerItemStyle: {height: 0},
+        }}
+      />
+      <Drawer.Screen
+        name="TreatmentPreviews"
+        component={TreatmentPreviews}
         options={{
           drawerItemStyle: {height: 0},
         }}
