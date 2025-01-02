@@ -10,7 +10,7 @@ import {
   FlatList,
   ListRenderItem,
   TextInput,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
 } from 'react-native';
 import {AnimatedCircularProgress} from 'react-native-circular-progress';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
@@ -19,6 +19,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {Shadow} from 'react-native-shadow-2';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {width} = Dimensions.get('window');
 const circularProgressSize = width * 0.812;
@@ -34,6 +35,7 @@ interface Message {
 }
 
 const TimerScreen: React.FC = () => {
+  const [showDisclaimerModal, setShowDisclaimerModal] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -78,7 +80,6 @@ const TimerScreen: React.FC = () => {
       time: '9:27 PM',
     },
   ]);
-
   const [startTime, setStartTime] = useState<string | null>(null);
   const [isWearing, setIsWearing] = useState<boolean>(true);
   const [isChatModalOpen, setIsChatModalOpen] = useState<boolean>(false);
@@ -108,6 +109,25 @@ const TimerScreen: React.FC = () => {
       minute: '2-digit',
     }),
   );
+
+  useEffect(() => {
+    const checkDisclaimerModalStatus = async () => {
+      const disclaimerModalClosed = await AsyncStorage.getItem(
+        'disclaimerModalClosed',
+      );
+      if (disclaimerModalClosed === 'false') {
+        setTimeout(() => {
+          setShowDisclaimerModal(true);
+        }, 2000);
+      }
+    };
+    checkDisclaimerModalStatus();
+  }, []);
+
+  const closeDisclaimerModal = async () => {
+    setShowDisclaimerModal(false);
+    await AsyncStorage.setItem('disclaimerModalClosed', 'true');
+  };
 
   const totalMinutes: number = 60;
   const alignerTimeIncrement: number = 2;
@@ -378,7 +398,7 @@ const TimerScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={{height:'100%'}}>
+      <View style={{height: '100%'}}>
         <TouchableOpacity
           onPress={() => navigation.openDrawer()}
           activeOpacity={0.8}
@@ -721,58 +741,80 @@ const TimerScreen: React.FC = () => {
         </View>
       </Modal>
       <Modal transparent={true} visible={isChatModalOpen} animationType="slide">
-       <TouchableWithoutFeedback onPress={()=>setIsChatModalOpen(false)}>
-       <View style={styles.modalOverlay}>
-          <TouchableWithoutFeedback>
-          <View
-            style={{
-              backgroundColor: COLORS.WHITE,
-              borderRadius: 12,
-              height: '80%',
-              paddingHorizontal: 10,
-            }}>
-            <View style={styles.chatHeader}>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => setIsChatModalOpen(false)}>
-                <Icons.BACKARROW />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>Chat Support</Text>
-            </View>
-            <FlatList
-              ref={flatListRef}
-              data={messages}
-              showsVerticalScrollIndicator={false}
-              renderItem={renderItem}
-              keyExtractor={item => item.id}
-              getItemLayout={(data, index) => ({
-                length: 100,
-                offset: 100 * index,
-                index,
-              })}
-            />
-            <View style={styles.inputContainer}>
-              <TextInput
-                multiline
-                numberOfLines={5}
-                style={styles.textInput}
-                placeholder="Type your message..."
-                value={messageText}
-                onChangeText={setMessageText}
-                placeholderTextColor={COLORS.GRAY_DARK}
-                onFocus={handleInputFocus}
-              />
-              <TouchableOpacity
-                activeOpacity={0.8}
-                style={styles.sendButton}
-                onPress={handleSend}>
-                <Icons.SEND />
-              </TouchableOpacity>
-            </View>
+        <TouchableWithoutFeedback onPress={() => setIsChatModalOpen(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View
+                style={{
+                  backgroundColor: COLORS.WHITE,
+                  borderRadius: 12,
+                  height: '80%',
+                  paddingHorizontal: 10,
+                }}>
+                <View style={styles.chatHeader}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => setIsChatModalOpen(false)}>
+                    <Icons.BACKARROW />
+                  </TouchableOpacity>
+                  <Text style={styles.headerTitle}>Chat Support</Text>
+                </View>
+                <FlatList
+                  ref={flatListRef}
+                  data={messages}
+                  showsVerticalScrollIndicator={false}
+                  renderItem={renderItem}
+                  keyExtractor={item => item.id}
+                  getItemLayout={(data, index) => ({
+                    length: 100,
+                    offset: 100 * index,
+                    index,
+                  })}
+                />
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    multiline
+                    numberOfLines={5}
+                    style={styles.textInput}
+                    placeholder="Type your message..."
+                    value={messageText}
+                    onChangeText={setMessageText}
+                    placeholderTextColor={COLORS.GRAY_DARK}
+                    onFocus={handleInputFocus}
+                  />
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={styles.sendButton}
+                    onPress={handleSend}>
+                    <Icons.SEND />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-          </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showDisclaimerModal}
+        onRequestClose={closeDisclaimerModal}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.disclaimerModalContent}>
+            <Text style={styles.disclaimerModalTitle}>Data Monitoring:</Text>
+            <Text style={styles.modalText}>
+              Please note that while Aligner Tracker helps you manage your
+              treatment, it does not monitor the data you upload. The app is a
+              tool for your convenience and personal reference, not for clinical
+              monitoring.
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={closeDisclaimerModal}
+            style={styles.closeIcon}>
+            <Icons.CROSS />
+          </TouchableOpacity>
         </View>
-       </TouchableWithoutFeedback>
       </Modal>
     </SafeAreaView>
   );
@@ -781,6 +823,29 @@ const TimerScreen: React.FC = () => {
 export default TimerScreen;
 
 const styles = StyleSheet.create({
+  disclaimerModalContent: {
+    backgroundColor: COLORS.WHITE,
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+  },
+  modalText: {
+    fontSize: 15,
+    fontFamily: 'Roboto-Regular',
+    color: COLORS.BLACK,
+    lineHeight: 20,
+  },
+  disclaimerModalTitle: {
+    fontSize: 19,
+    fontFamily: 'Roboto-Bold',
+    color: COLORS.BLACK,
+    marginBottom: 10,
+  },
+  closeIcon: {
+    position: 'absolute',
+    right: '15%',
+    top: '39%',
+  },
   msgContainer: {
     padding: 10,
   },

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   Text,
@@ -14,13 +14,13 @@ import {
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import {Shadow} from 'react-native-shadow-2';
 import COLORS from '../constraints/colors';
 import {Formik} from 'formik';
 import axios, {AxiosError} from 'axios';
 import * as Yup from 'yup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Email is required'),
@@ -54,6 +54,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
         console.log('Token', token);
         console.log('ID', id);
         await AsyncStorage.setItem('userId', id);
+        await AsyncStorage.setItem('disclaimerModalClosed', 'false');
         if (role === 'Patient') {
           Toast.show({
             type: 'success',
