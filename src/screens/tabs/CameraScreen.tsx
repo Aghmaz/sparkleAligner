@@ -188,7 +188,7 @@ const CameraScreen: React.FC = () => {
     try {
       const userId = userID;
       const response = await fetch(
-        `http://192.168.10.7:5000/api/auth/user/${userId}`,
+        `http://192.168.10.7:8000/api/auth/user/${userId}`,
         {
           method: 'GET',
           headers: {
@@ -203,7 +203,7 @@ const CameraScreen: React.FC = () => {
         uploadedAt: new Date(),
       });
       const updateResponse = await fetch(
-        `http://192.168.10.7:5000/api/auth/user/${userId}`,
+        `http://192.168.10.7:8000/api/auth/user/${userId}`,
         {
           method: 'PUT',
           headers: {
