@@ -66,7 +66,7 @@ const TreatmentPreviews: React.FC = () => {
     if (!userID) return;
     try {
       const response = await fetch(
-        'http://192.168.10.7:8000/api/user/treatment-preview-by-agent/',
+        'http://192.168.86.134:8000/api/user/treatment-preview-by-agent/',
       );
       const result: TreatmentPreviews[] = await response.json();
 
@@ -104,7 +104,7 @@ const TreatmentPreviews: React.FC = () => {
 
     try {
       const response = await fetch(
-        'http://192.168.10.7:8000/api/user/patient-approval/',
+        'http://192.168.86.134:8000/api/user/patient-approval/',
         {
           method: 'POST',
           headers: {

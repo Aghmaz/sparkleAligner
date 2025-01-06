@@ -17,6 +17,7 @@ import Settings from '../screens/drawer/Settings';
 import CameraScreen from '../screens/tabs/CameraScreen';
 import AddAppointment from '../screens/tabs/AddAppointment';
 import TreatmentPreviews from '../screens/drawer/TreatmentPreviews';
+import ChatSupport from '../screens/drawer/ChatSupport';
 import AddTime from '../screens/tabs/AddTime';
 import AddNotes from '../screens/tabs/AddNotes';
 import Icons from '../assets/icons';
@@ -138,6 +139,11 @@ const DrawerContent = () => {
           activeOpacity={0.8}>
           <DrawerItem icon={Icons.SETTINGS} text="Settings" />
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Drawer', {screen: 'ChatSupport'})}
+          activeOpacity={0.8}>
+          <DrawerItem icon={Icons.CHAT} text="Chat Support" />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -181,6 +187,13 @@ const DrawerNavigation = () => {
       <Drawer.Screen
         name="TreatmentPreviews"
         component={TreatmentPreviews}
+        options={{
+          drawerItemStyle: {height: 0},
+        }}
+      />
+      <Drawer.Screen
+        name="ChatSupport"
+        component={ChatSupport}
         options={{
           drawerItemStyle: {height: 0},
         }}

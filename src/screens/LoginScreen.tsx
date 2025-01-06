@@ -45,7 +45,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     };
     try {
       const response = await axios.post(
-        'http://192.168.10.7:8000/api/auth/login',
+        'http://192.168.86.134:8000/api/auth/login',
         payload,
       );
       if (response.status === 200) {
@@ -54,6 +54,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
         console.log('Token', token);
         console.log('ID', id);
         await AsyncStorage.setItem('userId', id);
+        await AsyncStorage.setItem('Token', token);
         await AsyncStorage.setItem('disclaimerModalClosed', 'false');
         if (role === 'Patient') {
           Toast.show({
