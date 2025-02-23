@@ -244,9 +244,60 @@ const TimerScreen: React.FC = () => {
     return () => clearInterval(timeDecrement);
   }, [minutesLeft, selectedAligner]);
 
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedData = await AsyncStorage.getItem('timerData');
+        if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          setSelectedAligner(parsedData.selectedAligner);
+          setMinutesLeft(parsedData.minutesLeft);
+          setOutTime(parsedData.outTime);
+          setNotificationTimer(parsedData.notificationTimer);
+          setDisplayedAligner(parsedData.displayedAligner);
+          setIsWearing(parsedData.isWearing);
+          // Load other necessary state variables
+        }
+      } catch (error) {
+        console.error('Failed to load data from local storage:', error);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    const saveData = async () => {
+      try {
+        const dataToStore = {
+          selectedAligner,
+          minutesLeft,
+          outTime,
+          notificationTimer,
+          displayedAligner,
+          isWearing,
+        };
+        await AsyncStorage.setItem('timerData', JSON.stringify(dataToStore));
+      } catch (error) {
+        console.error('Failed to save data to local storage:', error);
+      }
+    };
+
+    saveData();
+  }, [
+    selectedAligner,
+    minutesLeft,
+    outTime,
+    notificationTimer,
+    displayedAligner,
+    isWearing,
+  ]); // Add other dependencies as needed
+
   const handlePress = () => {
+    console.log('handlePress called');
     const now = new Date();
     if (!isWearing) {
+      console.log('Not wearing, starting interval');
       lastPausedAt.current = now;
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -263,6 +314,7 @@ const TimerScreen: React.FC = () => {
         });
       }, 60000);
     } else {
+      console.log('Wearing, toggling modal');
       toggleRemindModal();
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -279,7 +331,8 @@ const TimerScreen: React.FC = () => {
         setTimer(prev => prev + 1);
       }, 60000);
     }
-    setIsWearing(!isWearing);
+    setIsWearing(prev => !prev);
+    console.log('handlePress completed');
   };
   const notificationAlertMinutes = selectedRemindHour * 60 + selectedRemindMin;
 
@@ -325,6 +378,7 @@ const TimerScreen: React.FC = () => {
   };
 
   const handleRemindConfirm = () => {
+    console.log('========');
     setRemindModalVisible(false);
     startTimer();
   };
@@ -443,6 +497,7 @@ const TimerScreen: React.FC = () => {
                   {' '}
                   {isWearing ? 'Wearing' : 'Not Wearing'}
                 </Text>
+
                 <View style={styles.alignInfoContainer}>
                   {isWearing ? <Icons.ALIGN /> : <Icons.AlignBLUE />}
                   <Text
@@ -497,6 +552,15 @@ const TimerScreen: React.FC = () => {
               </View>
             )}
           />
+          <View
+            style={{
+              backgroundColor: '#9ceff5',
+              marginTop: 35,
+              padding: 10,
+              borderRadius: '10%',
+            }}>
+            <Text>Remind me</Text>
+          </View>
         </TouchableOpacity>
         <View
           style={[
