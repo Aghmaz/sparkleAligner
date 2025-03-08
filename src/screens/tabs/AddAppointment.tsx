@@ -12,10 +12,15 @@ import {useNavigation, NavigationProp} from '@react-navigation/native';
 import DatePicker from 'react-native-date-picker';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
+import {useTheme} from '../../theme/themeManagement';
+import LightTheme from '../../theme/LightTheme';
+import DarkTheme from '../../theme/DarkTheme';
 
 type NavigationProps = NavigationProp<any>;
 
 const AddAppointment: React.FC = () => {
+  const {theme} = useTheme();
+  const currentTheme = theme === 'light' ? LightTheme : DarkTheme;
   const navigation = useNavigation<NavigationProps>();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedMins, setSelectedMins] = useState<number>(2);
@@ -87,14 +92,20 @@ const AddAppointment: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: currentTheme.colors.background},
+      ]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBackNavigation} activeOpacity={0.8}>
-          <Icons.CROSS />
+          <Icons.CROSS fill={currentTheme.colors.icon} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Add Appointment</Text>
+        <Text style={[styles.headerText, {color: currentTheme.colors.text}]}>
+          Add Appointment
+        </Text>
         <TouchableOpacity onPress={handleBackNavigation} activeOpacity={0.8}>
-          <Icons.TICK />
+          <Icons.TICK fill={currentTheme.colors.icon} />
         </TouchableOpacity>
       </View>
       <View style={styles.contentContainer}>
@@ -103,27 +114,35 @@ const AddAppointment: React.FC = () => {
           activeOpacity={0.8}
           style={styles.row}>
           <View style={styles.rowLeft}>
-            <Icons.CALENDER />
-            <Text style={styles.rowTitle}>When?</Text>
+            <Icons.CALENDER fill={currentTheme.colors.icon} />
+            <Text style={[styles.rowTitle, {color: currentTheme.colors.text}]}>
+              When?
+            </Text>
           </View>
-          <Text style={styles.rowTime}>{formatDate(date)}</Text>
+          <Text style={[styles.rowTime, {color: currentTheme.colors.text}]}>
+            {formatDate(date)}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setModalVisible(true)}
           activeOpacity={0.8}
           style={styles.row}>
           <View style={styles.rowLeft}>
-            <Icons.ALARM />
-            <Text style={styles.rowTitle}>Remind Me</Text>
+            <Icons.ALARM fill={currentTheme.colors.icon} />
+            <Text style={[styles.rowTitle, {color: currentTheme.colors.text}]}>
+              Remind Me
+            </Text>
           </View>
-          <Text style={styles.rowTime}>{displayedMins}</Text>
+          <Text style={[styles.rowTime, {color: currentTheme.colors.text}]}>
+            {displayedMins}
+          </Text>
         </TouchableOpacity>
       </View>
       {showDatePicker && (
         <DatePicker
           modal
           open={showDatePicker}
-          theme='light'
+          theme={currentTheme.isDark ? 'dark' : 'light'}
           date={date}
           onConfirm={selectedDate => handleDateChange(selectedDate)}
           onCancel={() => setShowDatePicker(false)}
@@ -136,12 +155,15 @@ const AddAppointment: React.FC = () => {
       )}
       <Modal transparent={true} animationType="slide" visible={modalVisible}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Remind me of my appointment</Text>
+          <View style={[styles.modalContainer, {backgroundColor: currentTheme.colors.background}]}>
+            <Text
+              style={[styles.modalTitle, {color: currentTheme.colors.text}]}>
+              Remind me of my appointment
+            </Text>
             <ScrollView
               ref={ScrollViewRef}
               showsVerticalScrollIndicator={false}
-              style={styles.scrollView}>
+              style={[styles.scrollView]}>
               {minutesValues.map((minutesValue, index) => (
                 <TouchableOpacity
                   activeOpacity={0.8}
@@ -165,6 +187,7 @@ const AddAppointment: React.FC = () => {
                           selectedMins === index - 1
                             ? 1
                             : 0.5,
+                        color: currentTheme.colors.text,
                       },
                     ]}>
                     {minutesValue}
@@ -175,10 +198,12 @@ const AddAppointment: React.FC = () => {
             <View style={styles.btnsConatiner}>
               <Text
                 onPress={() => setModalVisible(false)}
-                style={styles.btnText}>
+                style={[styles.btnText, {color: currentTheme.colors.text}]}>
                 CANCEL
               </Text>
-              <Text onPress={handleMinutesConfirm} style={styles.btnText}>
+              <Text
+                onPress={handleMinutesConfirm}
+                style={[styles.btnText, {color: currentTheme.colors.text}]}>
                 CONFIRM
               </Text>
             </View>
@@ -195,6 +220,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.WHITE,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+  },
+  headerText: {
+    fontFamily: 'Roboto-Regular',
+    fontSize: 20,
+    color: COLORS.BLACK,
   },
   alignText: {
     fontFamily: 'Roboto-Medium',
@@ -226,12 +262,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.BLUE_DARK,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-  },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
@@ -261,11 +291,6 @@ const styles = StyleSheet.create({
   selectedValueContainer: {
     alignItems: 'center',
   },
-  headerText: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: 20,
-    color: COLORS.BLACK,
-  },
   contentContainer: {
     paddingHorizontal: 20,
     paddingTop: 40,
@@ -291,6 +316,11 @@ const styles = StyleSheet.create({
     color: COLORS.BLACK,
   },
   rowTime: {
+    fontFamily: 'Roboto-Regular',
+    fontSize: 15,
+    color: COLORS.BLACK,
+  },
+  alignerNo: {
     fontFamily: 'Roboto-Regular',
     fontSize: 15,
     color: COLORS.BLACK,

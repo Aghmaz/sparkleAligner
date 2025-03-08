@@ -5,10 +5,15 @@ import {useNavigation, NavigationProp} from '@react-navigation/native';
 import DatePicker from 'react-native-date-picker';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
+import {useTheme} from '../../theme/themeManagement';
+import LightTheme from '../../theme/LightTheme';
+import DarkTheme from '../../theme/DarkTheme';
 
 type NavigationProps = NavigationProp<any>;
 
 const AddTime: React.FC = () => {
+  const {theme} = useTheme();
+  const currentTheme = theme === 'light' ? LightTheme : DarkTheme;
   const navigation = useNavigation<NavigationProps>();
 
   const initialTookOffDate = new Date();
@@ -78,14 +83,20 @@ const AddTime: React.FC = () => {
   const timeOptions = [5, 15, 30, 45, 60];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: currentTheme.colors.background},
+      ]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBackNavigation} activeOpacity={0.8}>
-          <Icons.CROSS />
+          <Icons.CROSS fill={currentTheme.colors.icon} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Add Time</Text>
+        <Text style={[styles.headerText, {color: currentTheme.colors.text}]}>
+          Add Time
+        </Text>
         <TouchableOpacity onPress={handleBackNavigation} activeOpacity={0.8}>
-          <Icons.TICK />
+          <Icons.TICK fill={currentTheme.colors.icon} />
         </TouchableOpacity>
       </View>
       <View style={styles.contentContainer}>
@@ -94,26 +105,34 @@ const AddTime: React.FC = () => {
           activeOpacity={0.8}
           style={styles.row}>
           <View style={styles.rowLeft}>
-            <Icons.KNIFEANDFORK />
-            <Text style={styles.rowTitle}>Took Off</Text>
+            <Icons.KNIFEANDFORK fill={currentTheme.colors.icon} />
+            <Text style={[styles.rowTitle, {color: currentTheme.colors.text}]}>
+              Took Off
+            </Text>
           </View>
-          <Text style={styles.rowTime}>{formatDate(tookOffDate)}</Text>
+          <Text style={[styles.rowTime, {color: currentTheme.colors.text}]}>
+            {formatDate(tookOffDate)}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handlePutOnDatePress}
           activeOpacity={0.8}
           style={styles.row}>
           <View style={styles.rowLeft}>
-            <Icons.LIKEBLACK />
-            <Text style={styles.rowTitle}>Put On</Text>
+            <Icons.LIKEBLACK fill={currentTheme.colors.icon} />
+            <Text style={[styles.rowTitle, {color: currentTheme.colors.text}]}>
+              Put On
+            </Text>
           </View>
-          <Text style={styles.rowTime}>{formatDate(putOnDate)}</Text>
+          <Text style={[styles.rowTime, {color: currentTheme.colors.text}]}>
+            {formatDate(putOnDate)}
+          </Text>
         </TouchableOpacity>
         <View style={styles.timeOptions}>
           {timeOptions.map(time => (
             <Text
               key={time}
-              style={styles.timeOption}
+              style={[styles.timeOption, {color: currentTheme.colors.text}]}
               onPress={() => handleTimeOptionPress(time)}>
               {time === 60 ? 1 : time} {time === 60 ? 'hr' : 'min'}
             </Text>
@@ -121,8 +140,11 @@ const AddTime: React.FC = () => {
         </View>
       </View>
       <View style={styles.footer}>
-        <Text style={styles.footerDate}>{currentDate}</Text>
-        <Text style={styles.footerDuration}>
+        <Text style={[styles.footerDate, {color: currentTheme.colors.text}]}>
+          {currentDate}
+        </Text>
+        <Text
+          style={[styles.footerDuration, {color: currentTheme.colors.text}]}>
           Out {duration === 60 ? 1 : duration} {duration === 60 ? 'hr' : 'min'}
         </Text>
       </View>
@@ -131,7 +153,7 @@ const AddTime: React.FC = () => {
           modal
           open={showTookOffDatePicker}
           date={tookOffDate}
-          theme="light"
+          theme={currentTheme.isDark ? 'dark' : 'light'}
           onConfirm={selectedDate => handleTookOffDateChange(selectedDate)}
           onCancel={() => setShowTookOffDatePicker(false)}
           mode="datetime"
@@ -146,7 +168,7 @@ const AddTime: React.FC = () => {
           modal
           open={showPutOnDatePicker}
           date={putOnDate}
-          theme="light"
+          theme={currentTheme.isDark ? 'dark' : 'light'}
           onConfirm={selectedDate => handlePutOnDateChange(selectedDate)}
           onCancel={() => setShowPutOnDatePicker(false)}
           mode="datetime"

@@ -45,7 +45,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     };
     try {
       const response = await axios.post(
-        'http://192.168.43.112:8000/api/auth/login',
+        'http://192.168.1.101:8000/api/auth/login',
         payload,
       );
       if (response.status === 200) {

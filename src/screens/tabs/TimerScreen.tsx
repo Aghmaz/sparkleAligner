@@ -20,6 +20,12 @@ import {Shadow} from 'react-native-shadow-2';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '../../theme/themeManagement';
+import LightTheme from '../../theme/LightTheme';
+import DarkTheme from '../../theme/DarkTheme';
+
+
+
 
 const {width} = Dimensions.get('window');
 const circularProgressSize = width * 0.812;
@@ -36,7 +42,10 @@ interface Message {
 
 const TimerScreen: React.FC = () => {
   const [showDisclaimerModal, setShowDisclaimerModal] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
+  const { theme } = useTheme();
+  const currentTheme = theme === 'light' ? LightTheme : DarkTheme;
+  const
+   [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       type: 'sender',
@@ -402,12 +411,12 @@ const TimerScreen: React.FC = () => {
           borderBottomRightRadius: item.type === 'sender' ? 8 : 0,
           gap: 5,
         }}>
-        <Text style={styles.msgText}>{item.text}</Text>
+        <Text style={[styles.msgText, { color: currentTheme.colors.text }]}>{item.text}</Text>
         <Text
           style={{
             fontFamily: 'Roboto-Regular',
             fontSize: 12,
-            color: COLORS.GRAY_DARK,
+            color: currentTheme.colors.text,
             textAlign: item.type === 'sender' ? 'left' : 'right',
           }}>
           {item.time}
@@ -451,22 +460,22 @@ const TimerScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.colors.background }]}>
       <View style={{height: '100%'}}>
         <TouchableOpacity
           onPress={() => navigation.openDrawer()}
           activeOpacity={0.8}
           style={styles.header}>
-          <Icons.MENU />
-          <Text style={styles.headerTitle}>Timer</Text>
-          <Icons.FAQ />
+          <Icons.MENU fill={currentTheme.colors.icon} />
+          <Text style={[styles.headerTitle, { color: currentTheme.colors.text }]}>Timer</Text>
+          <Icons.FAQ fill={currentTheme.colors.icon} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={toggleModal}
           activeOpacity={0.8}
           style={styles.daysLeftContainer}>
-          <Icons.SYNC />
-          <Text style={styles.daysLeftText}>
+          <Icons.SYNC fill={currentTheme.colors.icon} />
+          <Text style={[styles.daysLeftText, { color: currentTheme.colors.text }]}>
             {minutesLeft} more {minutesLeft === 1 ? 'minute' : 'minutes'} on{' '}
             {displayedAligner}
           </Text>
@@ -483,7 +492,7 @@ const TimerScreen: React.FC = () => {
             backgroundColor={isWearing ? COLORS.BLUE_DARK : COLORS.SKY_LIGHT}
             rotation={360}
             childrenContainerStyle={{
-              backgroundColor: COLORS.WHITE,
+              backgroundColor: currentTheme.colors.background,
             }}
             children={() => (
               <View style={styles.circularProgressInnerContent}>
@@ -499,7 +508,7 @@ const TimerScreen: React.FC = () => {
                 </Text>
 
                 <View style={styles.alignInfoContainer}>
-                  {isWearing ? <Icons.ALIGN /> : <Icons.AlignBLUE />}
+                  {isWearing ? <Icons.ALIGN fill={currentTheme.colors.icon} /> : <Icons.AlignBLUE fill={currentTheme.colors.icon} />}
                   <Text
                     style={[
                       styles.appName,
@@ -519,7 +528,7 @@ const TimerScreen: React.FC = () => {
                   ]}>
                   {outTime === '' ? currentTime : outTime}
                 </Text>
-                <Text style={[styles.outText, {color: COLORS.GRAY_DARK}]}>
+                <Text style={[styles.outText, {color: currentTheme.colors.text}]}>
                   Out{' '}
                   {`${Math.floor(timer / 60)
                     .toString()
@@ -534,12 +543,12 @@ const TimerScreen: React.FC = () => {
                       alignItems: 'center',
                       gap: 6,
                     }}>
-                    <Icons.ALARM height={15} width={15} style={{top: 5}} />
+                    <Icons.ALARM height={15} width={15} style={{top: 5}} fill={currentTheme.colors.icon} />
                     <Text
                       style={{
                         fontFamily: 'Roboto-Regular',
                         fontSize: 13,
-                        color: COLORS.BLACK,
+                        color: currentTheme.colors.text,
                         paddingTop: 10,
                       }}>
                       {Math.floor(notificationTimer / 60)
@@ -559,7 +568,7 @@ const TimerScreen: React.FC = () => {
               padding: 10,
               borderRadius: '10%',
             }}>
-            <Text>Remind me</Text>
+            <Text style={{ color: '#000' }}>Remind me</Text>
           </View>
         </TouchableOpacity>
         <View
@@ -581,8 +590,8 @@ const TimerScreen: React.FC = () => {
           <Text style={styles.progressIndicatorText}>20</Text>
         </View>
         <View style={styles.daysToSmileContainer}>
-          <Icons.CALENDER />
-          <Text style={styles.daysToSmileText}>
+          <Icons.CALENDER fill={currentTheme.colors.icon} />
+          <Text style={[styles.daysToSmileText, { color: currentTheme.colors.text }]}>
             {remainingMinutes} minutes to a perfect smile!
           </Text>
         </View>
@@ -598,15 +607,15 @@ const TimerScreen: React.FC = () => {
               onPress={() => setIsChatModalOpen(true)}
               activeOpacity={0.8}
               style={styles.shadowButton}>
-              <Icons.CHAT />
+              <Icons.CHAT  />
             </TouchableOpacity>
           </Shadow>
         </View>
       </View>
       <Modal transparent={true} animationType="slide" visible={modalVisible}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>I'm currently wearing...</Text>
+          <View style={[styles.modalContainer, { backgroundColor: currentTheme.colors.background }]}>
+            <Text style={[styles.modalTitle, { color: currentTheme.colors.text }]}>I'm currently wearing...</Text>
             <ScrollView
               ref={scrollViewRef}
               showsVerticalScrollIndicator={false}
@@ -661,11 +670,11 @@ const TimerScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View
             style={{
-              backgroundColor: COLORS.WHITE,
+              backgroundColor: currentTheme.colors.background,
               borderRadius: 25,
               marginHorizontal: 8,
             }}>
-            <Text style={styles.modalTitle}>Remind me to wear again in</Text>
+            <Text style={[styles.modalTitle, { color: currentTheme.colors.text }]}>Remind me to wear again in</Text>
             <View style={{flexDirection: 'row'}}>
               <ScrollView
                 ref={remindHourscrollViewRef}
@@ -752,7 +761,7 @@ const TimerScreen: React.FC = () => {
                 style={{
                   fontFamily: 'Roboto-Medium',
                   fontSize: 17,
-                  color: COLORS.BLACK,
+                  color: currentTheme.colors.text,
                 }}>
                 5 min
               </Text>
@@ -761,7 +770,7 @@ const TimerScreen: React.FC = () => {
                 style={{
                   fontFamily: 'Roboto-Medium',
                   fontSize: 17,
-                  color: COLORS.BLACK,
+                  color: currentTheme.colors.text,
                 }}>
                 15 min
               </Text>
@@ -770,7 +779,7 @@ const TimerScreen: React.FC = () => {
                 style={{
                   fontFamily: 'Roboto-Medium',
                   fontSize: 17,
-                  color: COLORS.BLACK,
+                  color: currentTheme.colors.text,
                 }}>
                 30 min
               </Text>
@@ -779,7 +788,7 @@ const TimerScreen: React.FC = () => {
                 style={{
                   fontFamily: 'Roboto-Medium',
                   fontSize: 17,
-                  color: COLORS.BLACK,
+                  color: currentTheme.colors.text,
                 }}>
                 45 min
               </Text>
@@ -788,7 +797,7 @@ const TimerScreen: React.FC = () => {
                 style={{
                   fontFamily: 'Roboto-Medium',
                   fontSize: 17,
-                  color: COLORS.BLACK,
+                  color: currentTheme.colors.text,
                 }}>
                 1 hr
               </Text>
@@ -810,7 +819,7 @@ const TimerScreen: React.FC = () => {
             <TouchableWithoutFeedback>
               <View
                 style={{
-                  backgroundColor: COLORS.WHITE,
+                  backgroundColor: currentTheme.colors.background,
                   borderRadius: 12,
                   height: '80%',
                   paddingHorizontal: 10,
@@ -819,9 +828,9 @@ const TimerScreen: React.FC = () => {
                   <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={() => setIsChatModalOpen(false)}>
-                    <Icons.BACKARROW />
+                    <Icons.BACKARROW fill={currentTheme.colors.icon} />
                   </TouchableOpacity>
-                  <Text style={styles.headerTitle}>Chat Support</Text>
+                  <Text style={[styles.headerTitle, { color: currentTheme.colors.text }]}>Chat Support</Text>
                 </View>
                 <FlatList
                   ref={flatListRef}
@@ -839,18 +848,18 @@ const TimerScreen: React.FC = () => {
                   <TextInput
                     multiline
                     numberOfLines={5}
-                    style={styles.textInput}
+                    style={[styles.textInput, { borderColor: currentTheme.colors.text }]}
                     placeholder="Type your message..."
                     value={messageText}
                     onChangeText={setMessageText}
-                    placeholderTextColor={COLORS.GRAY_DARK}
+                    placeholderTextColor={currentTheme.colors.text}
                     onFocus={handleInputFocus}
                   />
                   <TouchableOpacity
                     activeOpacity={0.8}
                     style={styles.sendButton}
                     onPress={handleSend}>
-                    <Icons.SEND />
+                    <Icons.SEND fill={currentTheme.colors.icon} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -861,12 +870,13 @@ const TimerScreen: React.FC = () => {
       <Modal
         animationType="slide"
         transparent={true}
+      
         visible={showDisclaimerModal}
         onRequestClose={closeDisclaimerModal}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.disclaimerModalContent}>
-            <Text style={styles.disclaimerModalTitle}>Data Monitoring:</Text>
-            <Text style={styles.modalText}>
+        <View style={[styles.modalOverlay]}>
+          <View style={[styles.disclaimerModalContent, { backgroundColor: currentTheme.colors.background }]}>
+            <Text style={[styles.disclaimerModalTitle, { color: currentTheme.colors.text }]}>Data Monitoring:</Text>
+            <Text style={[styles.modalText, { color: currentTheme.colors.text }]}>
               Please note that while Aligner Tracker helps you manage your
               treatment, it does not monitor the data you upload. The app is a
               tool for your convenience and personal reference, not for clinical
@@ -876,7 +886,7 @@ const TimerScreen: React.FC = () => {
           <TouchableOpacity
             onPress={closeDisclaimerModal}
             style={styles.closeIcon}>
-            <Icons.CROSS />
+            <Icons.CROSS fill={currentTheme.colors.icon} />
           </TouchableOpacity>
         </View>
       </Modal>

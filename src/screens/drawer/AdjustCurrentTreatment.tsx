@@ -1,4 +1,5 @@
-import React, {useEffect, useState, useRef} from 'react';
+// src/screens/drawer/AdjustCurrentTreatment.tsx
+import React, { useEffect, useState, useRef } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,11 +8,13 @@ import {
   TouchableOpacity,
   Modal,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {useNavigation, NavigationProp} from '@react-navigation/native';
-import DatePicker from 'react-native-date-picker';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../../theme/themeManagement';
+import LightTheme from '../../theme/LightTheme';
+import DarkTheme from '../../theme/DarkTheme';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
+import DatePicker from 'react-native-date-picker';
 
 interface Aligner {
   number: number;
@@ -22,9 +25,10 @@ interface Aligner {
   endDateObj: Date;
 }
 
-type NavigationProps = NavigationProp<any>;
-
 const AdjustCurrentTreatment: React.FC = () => {
+  const { theme } = useTheme();
+  const currentTheme = theme === 'light' ? LightTheme : DarkTheme;
+
   const [daysEditModal, setDaysEditModal] = useState<boolean>(false);
   const [alignersCountChangeModal, setAlignersCountChangeModal] =
     useState<boolean>(false);
@@ -41,8 +45,6 @@ const AdjustCurrentTreatment: React.FC = () => {
   const [prevTotalAligners, setPrevTotalAligners] = useState(
     selectedAlignersCount,
   );
-
-  const navigation = useNavigation<NavigationProps>();
 
   const scrollViewRef = useRef<ScrollView>(null);
   const daysscrollViewRef = useRef<ScrollView>(null);
@@ -154,14 +156,10 @@ const AdjustCurrentTreatment: React.FC = () => {
     setAligners(alignersData);
   }, [selectedDate, totalAligners]);
 
-  const handleBackNavigation = (): void => {
-    navigation.goBack();
-  };
-
-  const days: number[] = Array.from({length: 180}, (_, index) => index + 1);
+  const days: number[] = Array.from({ length: 180 }, (_, index) => index + 1);
 
   const alignersCount: number[] = Array.from(
-    {length: 150},
+    { length: 150 },
     (_, index) => index + 1,
   );
 
@@ -171,48 +169,20 @@ const AdjustCurrentTreatment: React.FC = () => {
 
     const aligner = aligners.find(aligner => aligner.number === alignerNumber);
     if (aligner) {
-      setSelectedAlignerDays(parseInt(aligner.duration.split(' ')[0], 10));
-    }
-    if (daysscrollViewRef.current) {
-      const dayPosition = (selectedAlignerDays - 1) * 37;
-      daysscrollViewRef.current.scrollTo({y: dayPosition, animated: true});
+      setPrevSelectedDays(parseInt(aligner.duration.split(' ')[0]));
+      setSelectedAlignerDays(parseInt(aligner.duration.split(' ')[0]));
     }
   };
 
-  useEffect(() => {
-    if (alignersCountChangeModal && scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({
-        y: selectedAlignersCount * 37,
-        animated: true,
-      });
-    }
-  }, [alignersCountChangeModal]);
-
-  useEffect(() => {
-    if (daysEditModal && daysscrollViewRef.current) {
-      const dayPosition = (selectedAlignerDays - 1) * 37;
-      daysscrollViewRef.current.scrollTo({y: dayPosition, animated: true});
-    }
-  }, [daysEditModal, selectedAlignerDays]);
-
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleBackNavigation} activeOpacity={0.8}>
-          <Icons.CROSS />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Adjust Treatment</Text>
-        <TouchableOpacity onPress={handleBackNavigation} activeOpacity={0.8}>
-          <Icons.TICK />
-        </TouchableOpacity>
-      </View>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={{paddingBottom: 20}}>
+    <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.colors.background }]}>
+      <ScrollView>
+        <View style={{ paddingBottom: 20 }}>
           {aligners.map((aligner, index) => (
             <View key={aligner.number} style={styles.contentContainer}>
               <View style={styles.dateRow}>
                 {!(index === aligners.length - 1) ? (
-                  <Text style={styles.dateText}>{aligner.endDate}</Text>
+                  <Text style={[styles.dateText, { color: currentTheme.colors.text }]}>{aligner.endDate}</Text>
                 ) : null}
                 <View style={styles.alignerContainer}>
                   {index === 0 ? (
@@ -221,7 +191,7 @@ const AdjustCurrentTreatment: React.FC = () => {
                       onPress={toggleDateModal}
                       style={styles.startDateRow}>
                       <Icons.EDIT style={styles.iconOffset} />
-                      <Text style={styles.startDateText}>
+                      <Text style={[styles.startDateText, { color: currentTheme.colors.text }]}>
                         Start: {aligner.startDate}
                       </Text>
                     </TouchableOpacity>
@@ -245,10 +215,10 @@ const AdjustCurrentTreatment: React.FC = () => {
                               : COLORS.GRAY,
                         },
                       ]}>
-                      <Text style={styles.alignerNumber}>
+                      <Text style={[styles.alignerNumber, { color: currentTheme.colors.text }]}>
                         Aligner #{aligner.number}
                       </Text>
-                      <Text style={styles.alignerDuration}>
+                      <Text style={[styles.alignerDuration, { color: currentTheme.colors.text }]}>
                         {aligner.duration}
                       </Text>
                     </TouchableOpacity>
@@ -258,10 +228,10 @@ const AdjustCurrentTreatment: React.FC = () => {
                   </View>
                   {index === aligners.length - 1 ? (
                     <View style={styles.totalAlignerContainer}>
-                      <Icons.EDIT style={{top: 2}} />
+                      <Icons.EDIT style={{ top: 2 }} />
                       <Text
                         onPress={() => toggleModal('alignersCountChangeModal')}
-                        style={styles.totalAlignerText}>
+                        style={[styles.totalAlignerText, { color: currentTheme.colors.text }]}>
                         Total: {totalAligners} Aligners
                       </Text>
                     </View>
@@ -280,7 +250,7 @@ const AdjustCurrentTreatment: React.FC = () => {
           modal
           open={dateEditModal}
           date={selectedDate || new Date('2024-11-25')}
-          theme="light"
+          theme={currentTheme.isDark ? 'dark' : 'light'}
           onConfirm={date => handleDateChange(null, date)}
           onCancel={toggleDateModal}
           mode="date"
@@ -291,9 +261,9 @@ const AdjustCurrentTreatment: React.FC = () => {
         />
       )}
       <Modal transparent={true} animationType="slide" visible={daysEditModal}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>
+        <View style={[styles.modalOverlay]}>
+          <View style={[styles.modalContainer, {backgroundColor: currentTheme.colors.background}]}>
+            <Text style={[styles.modalTitle, { color: currentTheme.colors.text }]}>
               Days for Aligner #{selectedAligner}
             </Text>
             <ScrollView
@@ -312,7 +282,7 @@ const AdjustCurrentTreatment: React.FC = () => {
                       marginBottom: 120,
                     },
                   ]}>
-                  <Text style={styles.alignText}>{day}</Text>
+                  <Text style={[styles.alignText, { color: currentTheme.colors.text }]}>{day}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -322,10 +292,10 @@ const AdjustCurrentTreatment: React.FC = () => {
                   setSelectedAlignerDays(prevSelectedDays);
                   toggleModal('daysEditModal');
                 }}
-                style={styles.btnText}>
+                style={[styles.btnText, { color: currentTheme.colors.text }]}>
                 CANCEL
               </Text>
-              <Text onPress={handleConfirmDaysPress} style={styles.btnText}>
+              <Text onPress={handleConfirmDaysPress} style={[styles.btnText, { color: currentTheme.colors.text }]}>
                 CONFIRM
               </Text>
             </View>
@@ -338,7 +308,7 @@ const AdjustCurrentTreatment: React.FC = () => {
         visible={alignersCountChangeModal}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>
+            <Text style={[styles.modalTitle, { color: currentTheme.colors.text }]}>
               How many aligners in your treatment?
             </Text>
             <ScrollView
@@ -360,6 +330,7 @@ const AdjustCurrentTreatment: React.FC = () => {
                   <Text
                     style={[
                       styles.alignText,
+                      { color: currentTheme.colors.text },
                       selectedAlignersCount === index &&
                         styles.selectedAlignerText,
                       {
@@ -377,10 +348,10 @@ const AdjustCurrentTreatment: React.FC = () => {
               ))}
             </ScrollView>
             <View style={styles.btnsConatiner}>
-              <Text onPress={handleAlignersCountCancel} style={styles.btnText}>
+              <Text onPress={handleAlignersCountCancel} style={[styles.btnText, { color: currentTheme.colors.text }]}>
                 CANCEL
               </Text>
-              <Text onPress={handleAlignersCountConfirm} style={styles.btnText}>
+              <Text onPress={handleAlignersCountConfirm} style={[styles.btnText, { color: currentTheme.colors.text }]}>
                 CONFIRM
               </Text>
             </View>
@@ -396,7 +367,6 @@ export default AdjustCurrentTreatment;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.WHITE,
   },
   header: {
     flexDirection: 'row',
@@ -407,7 +377,6 @@ const styles = StyleSheet.create({
   headerText: {
     fontFamily: 'Roboto-Regular',
     fontSize: 20,
-    color: COLORS.BLACK,
   },
   contentContainer: {
     paddingHorizontal: 20,
@@ -421,7 +390,6 @@ const styles = StyleSheet.create({
   dateText: {
     fontFamily: 'Roboto-Bold',
     fontSize: 13,
-    color: COLORS.BLACK,
     bottom: '-6%',
   },
   alignerContainer: {
@@ -442,7 +410,6 @@ const styles = StyleSheet.create({
   startDateText: {
     fontFamily: 'Roboto-Bold',
     fontSize: 17,
-    color: COLORS.BLACK,
   },
   alignerInfo: {
     padding: 30,
@@ -453,12 +420,10 @@ const styles = StyleSheet.create({
   alignerNumber: {
     fontFamily: 'Roboto-Bold',
     fontSize: 17,
-    color: COLORS.BLACK,
   },
   alignerDuration: {
     fontFamily: 'Roboto-Bold',
     fontSize: 17,
-    color: COLORS.BLACK,
   },
   editIconContainer: {
     position: 'absolute',
@@ -482,7 +447,6 @@ const styles = StyleSheet.create({
   totalAlignerText: {
     fontFamily: 'Roboto-Bold',
     fontSize: 17,
-    color: COLORS.BLACK,
   },
   modalOverlay: {
     flex: 1,
@@ -498,7 +462,6 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: 'Roboto-Medium',
     fontSize: 20,
-    color: COLORS.BLACK,
     borderBottomWidth: 1,
     borderColor: COLORS.GRAY_LIGHT,
     paddingVertical: 15,
@@ -514,7 +477,6 @@ const styles = StyleSheet.create({
   alignText: {
     fontFamily: 'Roboto-Medium',
     fontSize: 20,
-    color: COLORS.GRAY_DARK,
     paddingBottom: 10,
   },
   selectedAligner: {
@@ -539,6 +501,5 @@ const styles = StyleSheet.create({
   btnText: {
     fontFamily: 'Roboto-Bold',
     fontSize: 14,
-    color: COLORS.BLUE_DARK,
   },
 });

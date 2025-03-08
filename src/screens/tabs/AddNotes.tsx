@@ -17,6 +17,9 @@ import {
 } from '@react-navigation/native';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
+import {useTheme} from '../../theme/themeManagement';
+import LightTheme from '../../theme/LightTheme';
+import DarkTheme from '../../theme/DarkTheme';
 
 type NavigationProps = NavigationProp<any>;
 
@@ -25,6 +28,8 @@ type RootDrawerParamList = {
 };
 
 const AddNotes: React.FC = () => {
+  const {theme} = useTheme();
+  const currentTheme = theme === 'light' ? LightTheme : DarkTheme;
   const route = useRoute<RouteProp<RootDrawerParamList, 'AddNotes'>>();
   const [savedNote, setSavedNote] = useState(route.params?.savedNote || '');
   const [note, setNote] = useState<string>(savedNote || '');
@@ -53,32 +58,42 @@ const AddNotes: React.FC = () => {
     }
   }, [savedNote, note]);
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: currentTheme.colors.background},
+      ]}>
       <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
         <View style={{flex: 1}}>
           <View style={styles.header}>
             <TouchableOpacity onPress={handleCross} activeOpacity={0.8}>
-              <Icons.CROSS />
+              <Icons.CROSS fill={currentTheme.colors.icon} />
             </TouchableOpacity>
-            <Text style={styles.headerText}>
+            <Text
+              style={[styles.headerText, {color: currentTheme.colors.text}]}>
               {savedNote ? 'Edit' : 'Add'} Notes
             </Text>
             {!note && <Text />}
             {note && (
               <TouchableOpacity onPress={handleTick} activeOpacity={0.8}>
-                <Icons.TICK />
+                <Icons.TICK fill={currentTheme.colors.icon} />
               </TouchableOpacity>
             )}
           </View>
           <View style={styles.row}>
             <View style={[styles.rowLeft, {borderBottomWidth: 0}]}>
-              <Icons.CALENDER />
-              <Text style={styles.rowTitle}>Date</Text>
+              <Icons.CALENDER fill={currentTheme.colors.icon} />
+              <Text
+                style={[styles.rowTitle, {color: currentTheme.colors.text}]}>
+                Date
+              </Text>
             </View>
-            <Text style={styles.rowDate}>12/13/2024</Text>
+            <Text style={[styles.rowDate, {color: currentTheme.colors.text}]}>
+              12/13/2024
+            </Text>
           </View>
           <View style={styles.rowLeft}>
-            <Icons.MENU height={20} width={20} />
+            <Icons.MENU height={20} width={20} fill={currentTheme.colors.icon} />
             <TextInput
               ref={inputRef}
               value={note}
@@ -86,7 +101,7 @@ const AddNotes: React.FC = () => {
               placeholderTextColor={COLORS.GRAY_DARK}
               placeholder="e.g. tightness, discomfort, special circumstances etc."
               style={{
-                color: COLORS.BLACK,
+                color: currentTheme.colors.text,
                 fontSize: 15,
                 width: '80%',
                 fontFamily: 'Roboto-Regular',
@@ -98,7 +113,7 @@ const AddNotes: React.FC = () => {
               onPress={handleDelete}
               activeOpacity={0.8}
               style={styles.rowLeft}>
-              <Icons.DELETERED />
+              <Icons.DELETERED fill={currentTheme.colors.icon} />
               <Text
                 style={{
                   color: COLORS.RED,

@@ -1,4 +1,5 @@
-import React, {useState, useRef, useEffect} from 'react';
+// src/screens/drawer/Settings.tsx
+import React, { useState, useRef, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,14 +8,19 @@ import {
   TouchableOpacity,
   Modal,
   Linking,
+  Appearance,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import DatePicker from 'react-native-date-picker';
-import {Switch} from 'react-native-switch';
+import { Switch } from 'react-native-switch';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
+import { useTheme } from '../../theme/themeManagement';
+import LightTheme from '../../theme/LightTheme';
+import DarkTheme from '../../theme/DarkTheme';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 type SettingsScreenNavigationProp = StackNavigationProp<any, 'Settings'>;
 
@@ -47,25 +53,26 @@ const Settings = () => {
   const weeksScrollViewRef = useRef<ScrollView>(null);
   const startWeekScrollViewRef = useRef<ScrollView>(null);
 
-  const themeValues: string[] = Array.from({length: 3}, (_, index) => {
+  const themeValues: string[] = Array.from({ length: 3 }, (_, index) => {
     const themes = ['Automatic', 'Light', 'Dark'];
     return themes[index % themes.length];
   });
-  const notificationSounds: string[] = Array.from({length: 3}, (_, index) => {
+  const notificationSounds: string[] = Array.from({ length: 3 }, (_, index) => {
     const sounds = ['System', 'Long', 'Short'];
     return sounds[index % sounds.length];
   });
-  const takeTeethiesWeeks: string[] = Array.from({length: 5}, (_, index) => {
+  const takeTeethiesWeeks: string[] = Array.from({ length: 5 }, (_, index) => {
     const weeks = ['1 week', '2 weeks', '3 weeks', '4 weeks', '5 weeks'];
     return weeks[index % weeks.length];
   });
-  const startWeekDays: string[] = Array.from({length: 3}, (_, index) => {
+  const startWeekDays: string[] = Array.from({ length: 3 }, (_, index) => {
     const days = ['Saturday', 'Sunday', 'Monday'];
     return days[index % days.length];
   });
 
-  const handleThemePress = (index: number): void => {
-    setSelectedTheme(index);
+  const handleThemePress = (index: number) => {
+    const themes = ['automatic', 'light', 'dark']; // Match context values
+    toggleTheme(themes[index] as 'light' | 'dark' | 'automatic');
   };
   const handleSoundPress = (index: number): void => {
     setSelectedSound(index);
@@ -159,27 +166,36 @@ const Settings = () => {
     );
   };
 
+  const { theme, toggleTheme } = useTheme();
+  const systemTheme = Appearance.getColorScheme();
+  const currentTheme =
+  theme === 'automatic'
+    ? (systemTheme === 'light' ? LightTheme : DarkTheme)
+    : theme === 'light'
+    ? LightTheme
+    : DarkTheme;
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.colors.background }]}>
       <View style={styles.headerContainer}>
         <Text></Text>
-        <Text style={styles.headerText}>Settings</Text>
+        <Text style={[styles.headerText, { color: currentTheme.colors.text }]}>Settings</Text>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
           activeOpacity={0.8}>
-          <Icons.TICK />
+          <Icons.TICK fill={currentTheme.colors.icon}/>
         </TouchableOpacity>
       </View>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Remind Me To...</Text>
+          <Text style={[styles.sectionTitle, { color: currentTheme.colors.text }]}>Remind Me To...</Text>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => setWearAligner(!wearAligner)}
             style={styles.switchContainer}>
             <View style={styles.iconTextContainer}>
-              <Icons.NOTIFICATION />
-              <Text style={styles.switchLabel}>Wear Aligners</Text>
+              <Icons.NOTIFICATION fill={currentTheme.colors.icon}/>
+              <Text style={[styles.switchLabel, { color: currentTheme.colors.text }]}>Wear Aligners</Text>
             </View>
             <Switch
               value={wearAligner}
@@ -200,71 +216,69 @@ const Settings = () => {
             activeOpacity={0.8}
             onPress={() => setTimePickerVisible(true)}
             style={styles.reminderItemContainer}>
-            <Icons.SYNC />
+            <Icons.SYNC fill={currentTheme.colors.icon}/>
             <View>
-              <Text style={styles.reminderTitle}>Switch Aligners</Text>
-              <Text style={styles.reminderSubtitle}>{displayTime}</Text>
+              <Text style={[styles.reminderTitle, { color: currentTheme.colors.text }]}>Switch Aligners</Text>
+              <Text style={[styles.reminderSubtitle, { color: currentTheme.colors.text }]}>{displayTime}</Text>
             </View>
           </TouchableOpacity>
           <View style={styles.reminderItemContainer}>
-            <Icons.TEETH />
+            <Icons.TEETH fill={currentTheme.colors.icon}/>
+            
+            
             <TouchableOpacity
               onPress={() => setWeeksModalVisible(true)}
               activeOpacity={0.8}>
-              <Text style={styles.reminderTitle}>Take Teethies</Text>
-              <Text style={styles.reminderSubtitle}>{displayedWeeks}</Text>
+              <Text style={[styles.reminderTitle, { color: currentTheme.colors.text }]}>Take Teethies</Text>
+              <Text style={[styles.reminderSubtitle, { color: currentTheme.colors.text }]}>{displayedWeeks}</Text>
             </TouchableOpacity>
           </View>
         </View>
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Calender</Text>
+          <Text style={[styles.sectionTitle, { color: currentTheme.colors.text }]}>Calendar</Text>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => setStartWeekModalVisible(true)}
             style={styles.reminderItemContainer}>
-            <Icons.CALENDER width={40} />
+            <Icons.CALENDER width={40} fill={currentTheme.colors.icon}/>
             <View>
-              <Text style={styles.reminderTitle}>Start Week On</Text>
-              <Text style={styles.reminderSubtitle}>{displayedStartDay}</Text>
+              <Text style={[styles.reminderTitle, { color: currentTheme.colors.text }]}>Start Week On</Text>
+              <Text style={[styles.reminderSubtitle, { color: currentTheme.colors.text }]}>{displayedStartDay}</Text>
             </View>
           </TouchableOpacity>
         </View>
         <View style={styles.sectionContainer}>
           <View style={styles.reminderItemContainer}>
-            <Icons.THEME width={40} />
+            <Icons.THEME width={40} fill={currentTheme.colors.icon}/>
             <TouchableOpacity
               onPress={() => setThemeModalVisible(true)}
               activeOpacity={0.8}>
-              <Text style={styles.reminderTitle}>Theme</Text>
-              <Text style={styles.reminderSubtitle}>{displayedTheme}</Text>
+              <Text style={[styles.reminderTitle, { color: currentTheme.colors.text }]}>Theme</Text>
+              <Text style={[styles.reminderSubtitle, { color: currentTheme.colors.text }]}>{displayedTheme}</Text>
             </TouchableOpacity>
           </View>
           <TouchableOpacity
             onPress={() => setSoundModalVisible(true)}
             activeOpacity={0.8}
             style={styles.reminderItemContainer}>
-            <Icons.SOUND width={40} />
+            <Icons.SOUND width={40} fill={currentTheme.colors.icon}/>
             <View>
-              <Text style={styles.reminderTitle}>Notification Sound</Text>
-              <Text style={styles.reminderSubtitle}>{displayedSound}</Text>
+              <Text style={[styles.reminderTitle, { color: currentTheme.colors.text }]}>Notification Sound</Text>
+              <Text style={[styles.reminderSubtitle, { color: currentTheme.colors.text }]}>{displayedSound}</Text>
             </View>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => openLink('http://www.crypthonlab.com')}
             activeOpacity={0.8}
             style={styles.reminderItemContainer}>
-            <Icons.PRIVACY_POLICY width={40} />
-            <Text style={styles.reminderTitle}>Privacy Policy</Text>
+            <Icons.PRIVACY_POLICY width={40} fill={currentTheme.colors.icon}/>
+            <Text style={[styles.reminderTitle, { color: currentTheme.colors.text }]}>Privacy Policy</Text>
           </TouchableOpacity>
-          {/* <View style={styles.reminderItemContainer}>
-            <Icons.MENU width={40} height={20} />
-            <Text style={styles.reminderTitle}>Software Licenses</Text>
-          </View> */}
           <View style={styles.reminderItemContainer}>
-            <Icons.INFO width={40} />
+            <Icons.INFO width={40} fill={currentTheme.colors.icon}/>
             <View>
-              <Text style={styles.reminderTitle}>Version</Text>
-              <Text style={styles.reminderSubtitle}>12.3.0</Text>
+              <Text style={[styles.reminderTitle, { color: currentTheme.colors.text }]}>Version</Text>
+              <Text style={[styles.reminderSubtitle, { color: currentTheme.colors.text }]}>12.3.0</Text>
             </View>
           </View>
         </View>
@@ -274,8 +288,8 @@ const Settings = () => {
         animationType="slide"
         visible={themeModalVisible}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Theme</Text>
+          <View style={[styles.modalContainer, {backgroundColor: currentTheme.colors.background}]}>
+            <Text style={[styles.modalTitle, { color: currentTheme.colors.text }]}>Theme</Text>
             <ScrollView
               ref={themeScrollViewRef}
               showsVerticalScrollIndicator={false}
@@ -297,6 +311,7 @@ const Settings = () => {
                       styles.alignText,
                       selectedTheme === index && styles.selectedValueText,
                       {
+                        color: currentTheme.colors.text,
                         opacity:
                           selectedTheme === index ||
                           selectedTheme === index + 1 ||
@@ -313,10 +328,10 @@ const Settings = () => {
             <View style={styles.btnsConatiner}>
               <Text
                 onPress={() => setThemeModalVisible(false)}
-                style={styles.btnText}>
+                style={[styles.btnText, { color: COLORS.BLUE_DARK }]}>
                 CANCEL
               </Text>
-              <Text onPress={handleThemeConfirm} style={styles.btnText}>
+              <Text onPress={handleThemeConfirm} style={[styles.btnText, { color: COLORS.BLUE_DARK }]}>
                 CONFIRM
               </Text>
             </View>
@@ -328,8 +343,8 @@ const Settings = () => {
         animationType="slide"
         visible={soundModalVisible}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Notification Sound</Text>
+          <View style={[styles.modalContainer, {backgroundColor: currentTheme.colors.background}]}>
+            <Text style={[styles.modalTitle, { color: currentTheme.colors.text }]}>Notification Sound</Text>
             <ScrollView
               ref={soundScrollViewRef}
               showsVerticalScrollIndicator={false}
@@ -351,6 +366,7 @@ const Settings = () => {
                       styles.alignText,
                       selectedSound === index && styles.selectedValueText,
                       {
+                        color: currentTheme.colors.text,
                         opacity:
                           selectedSound === index ||
                           selectedSound === index + 1 ||
@@ -367,10 +383,10 @@ const Settings = () => {
             <View style={styles.btnsConatiner}>
               <Text
                 onPress={() => setSoundModalVisible(false)}
-                style={styles.btnText}>
+                style={[styles.btnText, { color: COLORS.BLUE_DARK }]}>
                 CANCEL
               </Text>
-              <Text onPress={handleSoundConfirm} style={styles.btnText}>
+              <Text onPress={handleSoundConfirm} style={[styles.btnText, { color:COLORS.BLUE_DARK }]}>
                 CONFIRM
               </Text>
             </View>
@@ -381,15 +397,15 @@ const Settings = () => {
         transparent={true}
         animationType="slide"
         visible={weeksModalVisible}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>
+        <View style={[styles.modalOverlay]}>
+          <View style={[styles.modalContainer, {backgroundColor: currentTheme.colors.background}]}>
+            <Text style={[styles.modalTitle, { color: currentTheme.colors.text }]}>
               Remind me to take my next Teethie in
             </Text>
             <ScrollView
               ref={weeksScrollViewRef}
               showsVerticalScrollIndicator={false}
-              style={styles.scrollView}>
+              style={[styles.scrollView, {backgroundColor: currentTheme.colors.background}]}>
               {takeTeethiesWeeks.map((weeks, index) => (
                 <TouchableOpacity
                   activeOpacity={0.8}
@@ -399,14 +415,15 @@ const Settings = () => {
                     styles.selectedValueContainer,
                     selectedWeeks === index && styles.selectedValue,
                     index === takeTeethiesWeeks.length - 1 && {
-                      marginBottom: 120,
-                    },
+                      marginBottom: 120
+                    }
                   ]}>
                   <Text
                     style={[
                       styles.alignText,
                       selectedWeeks === index && styles.selectedValueText,
                       {
+                        color: currentTheme.colors.text,
                         opacity:
                           selectedWeeks === index ||
                           selectedWeeks === index + 1 ||
@@ -426,10 +443,10 @@ const Settings = () => {
                   setWeeksModalVisible(false);
                   setDisplayedWeeks('No Reminder');
                 }}
-                style={styles.btnText}>
+                style={[styles.btnText, { color: COLORS.BLUE_DARK }]}>
                 NO REMINDER
               </Text>
-              <Text onPress={handleWeeksConfirm} style={styles.btnText}>
+              <Text onPress={handleWeeksConfirm} style={[styles.btnText, { color: COLORS.BLUE_DARK }]}>
                 CONFIRM
               </Text>
             </View>
@@ -441,8 +458,10 @@ const Settings = () => {
         animationType="slide"
         visible={startWeekModalVisible}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Start the week on</Text>
+          <View style={[styles.modalContainer, {backgroundColor: currentTheme.colors.background}
+
+          ]}>
+            <Text style={[styles.modalTitle, { color: currentTheme.colors.text }]}>Start the week on</Text>
             <ScrollView
               ref={startWeekScrollViewRef}
               showsVerticalScrollIndicator={false}
@@ -464,6 +483,7 @@ const Settings = () => {
                       styles.alignText,
                       selectedStartDay === index && styles.selectedValueText,
                       {
+                        color: currentTheme.colors.text,
                         opacity:
                           selectedStartDay === index ||
                           selectedStartDay === index + 1 ||
@@ -480,10 +500,10 @@ const Settings = () => {
             <View style={styles.btnsConatiner}>
               <Text
                 onPress={() => setStartWeekModalVisible(false)}
-                style={styles.btnText}>
+                style={[styles.btnText, { color: COLORS.BLUE_DARK }]}>
                 CANCEL
               </Text>
-              <Text onPress={handleStartDayConfirm} style={styles.btnText}>
+              <Text onPress={handleStartDayConfirm} style={[styles.btnText, { color: COLORS.BLUE_DARK }]}>
                 CONFIRM
               </Text>
             </View>
@@ -495,7 +515,7 @@ const Settings = () => {
           modal
           open={timePickerVisible}
           date={selectedTime}
-          theme="light"
+          theme={currentTheme.isDark ? 'dark' : 'light'}
           onConfirm={handleTimeConfirm}
           onCancel={resetReminder}
           mode="time"
@@ -514,7 +534,6 @@ export default Settings;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.WHITE,
     paddingBottom: 20,
   },
   headerContainer: {
@@ -526,7 +545,6 @@ const styles = StyleSheet.create({
   headerText: {
     fontFamily: 'Roboto-Regular',
     fontSize: 22,
-    color: COLORS.BLACK,
   },
   sectionContainer: {
     paddingHorizontal: 10,
@@ -535,9 +553,8 @@ const styles = StyleSheet.create({
     borderColor: COLORS.GRAY_DARK,
   },
   sectionTitle: {
-    fontFamily: 'Robot-Regular',
+    fontFamily: 'Roboto-Regular',
     fontSize: 15,
-    color: COLORS.BLACK,
     paddingTop: 20,
   },
   switchContainer: {
@@ -553,9 +570,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   switchLabel: {
-    fontFamily: 'Robot-Regular',
+    fontFamily: 'Roboto-Regular',
     fontSize: 17,
-    color: COLORS.BLACK,
   },
   reminderItemContainer: {
     flexDirection: 'row',
@@ -565,14 +581,12 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   reminderTitle: {
-    fontFamily: 'Robot-Regular',
+    fontFamily: 'Roboto-Regular',
     fontSize: 17,
-    color: COLORS.BLACK,
   },
   reminderSubtitle: {
-    fontFamily: 'Robot-Regular',
+    fontFamily: 'Roboto-Regular',
     fontSize: 14,
-    color: COLORS.BLACK,
     top: -2,
   },
   modalOverlay: {
@@ -590,7 +604,6 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: 'Roboto-Regular',
     fontSize: 25,
-    color: COLORS.BLACK,
     borderBottomWidth: 1,
     borderColor: COLORS.GRAY_LIGHT,
     paddingBottom: 15,
@@ -607,7 +620,6 @@ const styles = StyleSheet.create({
   alignText: {
     fontFamily: 'Roboto-Medium',
     fontSize: 20,
-    color: COLORS.GRAY_DARK,
     paddingBottom: 10,
   },
   selectedValue: {
@@ -632,6 +644,5 @@ const styles = StyleSheet.create({
   btnText: {
     fontFamily: 'Roboto-Bold',
     fontSize: 14,
-    color: COLORS.BLUE_DARK,
   },
 });

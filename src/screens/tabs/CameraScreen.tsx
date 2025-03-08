@@ -15,7 +15,9 @@ import Toast from 'react-native-toast-message';
 import {Shadow} from 'react-native-shadow-2';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
-import axios from 'axios';
+import {useTheme} from '../../theme/themeManagement';
+import LightTheme from '../../theme/LightTheme';
+import DarkTheme from '../../theme/DarkTheme';
 
 const PermissionsPage: React.FC = () => (
   <View style={styles.centeredMessageContainer}>
@@ -32,6 +34,8 @@ const NoCameraDeviceError: React.FC = () => (
 type CameraScreenNavigationProp = DrawerNavigationProp<any, any>;
 
 const CameraScreen: React.FC = () => {
+  const {theme} = useTheme();
+  const currentTheme = theme === 'light' ? LightTheme : DarkTheme;
   const [isPermissionGranted, setPermissionGranted] = useState<boolean>(false);
   const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
@@ -233,13 +237,23 @@ const CameraScreen: React.FC = () => {
   if (!device) return <NoCameraDeviceError />;
 
   return (
-    <SafeAreaView style={styles.safeAreaContainer}>
+    <SafeAreaView
+      style={[
+        styles.safeAreaContainer,
+        {backgroundColor: currentTheme.colors.background},
+      ]}>
       <View style={styles.actionButtonContainer}>
         <TouchableOpacity
           activeOpacity={0.8}
           style={styles.actionButtonRow}
           onPress={() => setIsCameraActive(true)}>
-          <Text style={styles.actionButtonText}>Take Photo</Text>
+          <Text
+            style={[
+              styles.actionButtonText,
+              {color: currentTheme.colors.text},
+            ]}>
+            Take Photo
+          </Text>
           <Shadow>
             <View style={styles.iconButtonWrapper}>
               <Icons.CAMERASKYBLUE />
@@ -250,7 +264,13 @@ const CameraScreen: React.FC = () => {
           onPress={chooseFromLibrary}
           activeOpacity={0.8}
           style={styles.actionButtonRow}>
-          <Text style={styles.actionButtonText}>Choose from Library</Text>
+          <Text
+            style={[
+              styles.actionButtonText,
+              {color: currentTheme.colors.text},
+            ]}>
+            Choose from Library
+          </Text>
           <Shadow>
             <View style={styles.iconButtonWrapper}>
               <Icons.LIBRARY />
@@ -319,7 +339,7 @@ const CameraScreen: React.FC = () => {
         <View
           style={{
             flex: 1,
-            backgroundColor: COLORS.WHITE,
+            backgroundColor: currentTheme.colors.background,
             justifyContent: 'center',
             alignItems: 'center',
           }}>

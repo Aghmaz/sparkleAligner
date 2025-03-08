@@ -9,6 +9,9 @@ import {
 } from 'react-native';
 import websocketService from '../../services/websocketService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useTheme} from '../../theme/themeManagement';
+import LightTheme from '../../theme/LightTheme';
+import DarkTheme from '../../theme/DarkTheme';
 
 const agentId = '675433a1f20c61fed60f6e3b';
 
@@ -19,6 +22,8 @@ interface Message {
 }
 
 const ChatSupport = () => {
+  const {theme} = useTheme();
+  const currentTheme = theme === 'light' ? LightTheme : DarkTheme;
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>('');
@@ -38,7 +43,6 @@ const ChatSupport = () => {
   }, []);
 
   useEffect(() => {
-
     if (!userId) return;
 
     websocketService.connect(userId);
@@ -79,7 +83,7 @@ const ChatSupport = () => {
     });
 
     return () => websocketService.disconnect();
-  }, [userId, conversationId,messages]);
+  }, [userId, conversationId, messages]);
 
   const handleSendMessage = async () => {
     if (!message.trim() || !conversationId || !userId) return;
@@ -106,8 +110,14 @@ const ChatSupport = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Chat with Agent</Text>
+    <View
+      style={[
+        styles.container,
+        {backgroundColor: currentTheme.colors.background},
+      ]}>
+      <Text style={[styles.header, {color: currentTheme.colors.text}]}>
+        Chat with Agent
+      </Text>
       <FlatList
         data={messages}
         keyExtractor={(item, index) => index.toString()}
@@ -117,18 +127,25 @@ const ChatSupport = () => {
               styles.messageContainer,
               item.sender === 'You' ? styles.yourMessage : styles.agentMessage,
             ]}>
-            <Text style={styles.messageText}>{item.content}</Text>
-            <Text style={styles.messageTime}>{item.time}</Text>
+            <Text
+              style={[styles.messageText, {color: currentTheme.colors.text}]}>
+              {item.content}
+            </Text>
+            <Text
+              style={[styles.messageTime, {color: currentTheme.colors.text}]}>
+              {item.time}
+            </Text>
           </View>
         )}
         style={styles.messageList}
       />
       <View style={styles.inputContainer}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, {borderColor: currentTheme.colors.text, color: currentTheme.colors.text}]}
           value={message}
           onChangeText={setMessage}
           placeholder="Type a message..."
+          placeholderTextColor={currentTheme.colors.text}
         />
         <Button title="Send" onPress={handleSendMessage} />
       </View>
@@ -141,7 +158,6 @@ export default ChatSupport;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
     padding: 10,
   },
   header: {
@@ -169,11 +185,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#e0e0e0',
   },
   messageText: {
-    color: '#fff',
+    // color: '#fff',
   },
   messageTime: {
     fontSize: 10,
-    color: '#ddd',
     marginTop: 5,
     textAlign: 'right',
   },
@@ -183,7 +198,6 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    borderColor: '#ddd',
     borderWidth: 1,
     borderRadius: 5,
     padding: 10,

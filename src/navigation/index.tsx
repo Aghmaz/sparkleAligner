@@ -1,15 +1,17 @@
+// src/navigation/index.tsx
 import React from 'react';
 import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
+import {useNavigation} from '@react-navigation/native';
+import {useTheme} from '../theme/themeManagement';
 import LoginScreen from '../screens/LoginScreen';
 import OnBoardScreen from '../screens/OnBoardScreen';
 import TimerScreen from '../screens/tabs/TimerScreen';
 import CalenderScreen from '../screens/tabs/CalenderScreen';
 import FAQ from '../screens/drawer/FAQ';
-import {useNavigation} from '@react-navigation/native';
 import AdjustCurrentTreatment from '../screens/drawer/AdjustCurrentTreatment';
 import StartANewTreatment from '../screens/drawer/StartANewTreatment';
 import AddAlignerSwitch from '../screens/tabs/AddAlignerSwitch';
@@ -21,6 +23,8 @@ import ChatSupport from '../screens/drawer/ChatSupport';
 import AddTime from '../screens/tabs/AddTime';
 import AddNotes from '../screens/tabs/AddNotes';
 import Icons from '../assets/icons';
+import LightTheme from '../theme/LightTheme';
+import DarkTheme from '../theme/DarkTheme';
 import COLORS from '../constraints/colors';
 
 type RootStackParamList = {
@@ -29,9 +33,9 @@ type RootStackParamList = {
   Drawer: {screen: string};
   AdjustCurrentTreatment: undefined;
   AddTime: undefined;
-  AddAlignerSwitch:undefined;
-  AddAppointment:undefined;
-  AddNotes:undefined
+  AddAlignerSwitch: undefined;
+  AddAppointment: undefined;
+  AddNotes: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -39,13 +43,19 @@ const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
 const TabNavigator: React.FC = () => {
+  const {theme} = useTheme();
+  const currentTheme = theme === 'light' ? LightTheme : DarkTheme;
+
   return (
     <Tab.Navigator
       initialRouteName="Timer"
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarStyle: styles.tabBarStyle,
+        tabBarStyle: [
+          styles.tabBarStyle,
+          {backgroundColor: currentTheme.colors.tabbarBackground},
+        ],
       }}>
       <Tab.Screen
         name="Timer"
@@ -53,11 +63,15 @@ const TabNavigator: React.FC = () => {
         options={{
           tabBarIcon: ({focused}) =>
             focused ? (
-              <View style={styles.tabIconContainerFocused}>
+              <View
+                style={[
+                  styles.tabIconContainerFocused,
+                  {backgroundColor: COLORS.SKY_LIGHT},
+                ]}>
                 <Icons.TIMERA />
               </View>
             ) : (
-              <Icons.TIMER />
+              <Icons.TIMER fill={currentTheme.colors.icon} />
             ),
         }}
       />
@@ -67,11 +81,15 @@ const TabNavigator: React.FC = () => {
         options={{
           tabBarIcon: ({focused}) =>
             focused ? (
-              <View style={styles.tabIconContainerFocused}>
+              <View
+                style={[
+                  styles.tabIconContainerFocused,
+                  {backgroundColor: COLORS.SKY_LIGHT},
+                ]}>
                 <Icons.CALENDERA />
               </View>
             ) : (
-              <Icons.CALENDER />
+              <Icons.CALENDER fill={currentTheme.colors.icon} />
             ),
         }}
       />
@@ -81,11 +99,15 @@ const TabNavigator: React.FC = () => {
         options={{
           tabBarIcon: ({focused}) =>
             focused ? (
-              <View style={styles.tabIconContainerFocused}>
+              <View
+                style={[
+                  styles.tabIconContainerFocused,
+                  {backgroundColor: COLORS.SKY_LIGHT},
+                ]}>
                 <Icons.CAMERAA />
               </View>
             ) : (
-              <Icons.CAMERA />
+              <Icons.CAMERA fill={currentTheme.colors.icon} />
             ),
         }}
       />
@@ -95,11 +117,25 @@ const TabNavigator: React.FC = () => {
 
 const DrawerContent = () => {
   const navigation = useNavigation<DrawerNavigationProp<RootStackParamList>>();
+  const {theme} = useTheme();
+  const currentTheme = theme === 'light' ? LightTheme : DarkTheme;
+
   return (
-    <View style={styles.drawerContentContainer}>
+    <View
+      style={[
+        styles.drawerContentContainer,
+        {backgroundColor: currentTheme.colors.background},
+      ]}>
       <View style={styles.drawerHeader}>
-        <Icons.AlignBLUELIGHT height={40} width={40} />
-        <Text style={styles.drawerHeaderText}>SPARKLE ALIGN</Text>
+        <Icons.AlignBLUELIGHT
+          height={40}
+          width={40}
+          fill={currentTheme.colors.icon}
+        />
+        <Text
+          style={[styles.drawerHeaderText, {color: currentTheme.colors.text}]}>
+          SPARKLE ALIGN
+        </Text>
       </View>
       <View style={styles.drawerSection}>
         <TouchableOpacity
@@ -117,7 +153,7 @@ const DrawerContent = () => {
           <DrawerItem icon={Icons.FOLDER} text="Start a New Treatment" />
         </TouchableOpacity>
         <TouchableOpacity
-        style={{marginLeft:-7}}
+          style={{marginLeft: -7}}
           onPress={() =>
             navigation.navigate('Drawer', {screen: 'TreatmentPreviews'})
           }
@@ -153,10 +189,15 @@ const DrawerItem: React.FC<{icon: React.ComponentType; text: string}> = ({
   icon: Icon,
   text,
 }) => {
+  const {theme} = useTheme();
+  const currentTheme = theme === 'light' ? LightTheme : DarkTheme;
+
   return (
-    <View style={styles.drawerItemContainer}>
-      <Icon />
-      <Text style={styles.drawerItemText}>{text}</Text>
+    <View style={[styles.drawerItemContainer]}>
+      <Icon fill={currentTheme.colors.icon} />
+      <Text style={[styles.drawerItemText, {color: currentTheme.colors.text}]}>
+        {text}
+      </Text>
     </View>
   );
 };
@@ -267,14 +308,12 @@ export default function AppNavigator() {
 
 const styles = StyleSheet.create({
   tabBarStyle: {
-    backgroundColor: COLORS.WHITE,
     height: 80,
     borderTopWidth: 0.2,
     borderColor: COLORS.GRAY_DARK,
   },
   tabIconContainerFocused: {
     paddingVertical: 4,
-    backgroundColor: '#9ceff5',
     borderRadius: 25,
     paddingHorizontal: 15,
   },
@@ -293,7 +332,6 @@ const styles = StyleSheet.create({
   drawerHeaderText: {
     fontFamily: 'Roboto-Black',
     fontSize: 22,
-    color: COLORS.BLUE_LIGHT,
   },
   drawerSection: {
     paddingHorizontal: 20,
@@ -311,6 +349,5 @@ const styles = StyleSheet.create({
   drawerItemText: {
     fontFamily: 'Roboto-Regular',
     fontSize: 14,
-    color: COLORS.BLACK,
   },
 });

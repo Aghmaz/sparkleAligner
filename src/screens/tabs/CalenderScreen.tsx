@@ -1,4 +1,5 @@
-import React, {useState,useEffect} from 'react';
+// src/screens/tabs/CalenderScreen.tsx
+import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar} from 'react-native-calendars';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
@@ -7,6 +8,9 @@ import {Shadow} from 'react-native-shadow-2';
 import {useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
+import {useTheme} from '../../theme/themeManagement'; // Added import for theme management
+import LightTheme from '../../theme/LightTheme';
+import DarkTheme from '../../theme/DarkTheme';
 
 type RootDrawerParamList = {
   Calendar: undefined;
@@ -14,7 +18,7 @@ type RootDrawerParamList = {
   AddAlignerSwitch: undefined;
   AddAppointment: undefined;
   AddNotes: {savedNote: string} | undefined;
-  AdjustCurrentTreatment:undefined
+  AdjustCurrentTreatment: undefined;
 };
 
 type CalendarScreenNavigationProp = DrawerNavigationProp<
@@ -23,14 +27,16 @@ type CalendarScreenNavigationProp = DrawerNavigationProp<
 >;
 
 const CalenderScreen = () => {
+  const { theme } = useTheme(); // Get current theme
+  const currentTheme = theme === 'light' ? LightTheme : DarkTheme; // Determine current theme
   const [selected, setSelected] = useState<string>('');
   const [isPlusOpen, setIsPlusOpen] = useState<boolean>(false);
   const [currentMonth, setCurrentMonth] = useState<string>('');
   const navigation = useNavigation<CalendarScreenNavigationProp>();
   const route = useRoute<RouteProp<RootDrawerParamList, 'AddNotes'>>();
 
-
   useEffect(() => {
+    const today = new Date();
     const formattedMonth = today.toLocaleString('default', {
       month: 'long',
       year: 'numeric',
@@ -65,7 +71,7 @@ const CalenderScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.colors.background }]}> // Updated background color
       {isPlusOpen ? (
         <View style={styles.bottomContainer}>
           <TouchableOpacity
@@ -75,10 +81,10 @@ const CalenderScreen = () => {
             }}
             activeOpacity={0.8}
             style={styles.iconRow}>
-            <Text style={styles.textLabel}>Time</Text>
+            <Text style={[styles.textLabel, {color: currentTheme.colors.text}]}>Time</Text>
             <Shadow>
               <View style={styles.iconButtonContainer}>
-                <Icons.KNIFEANDFORK />
+                <Icons.KNIFEANDFORK fill={currentTheme.colors.icon} />
               </View>
             </Shadow>
           </TouchableOpacity>
@@ -89,10 +95,10 @@ const CalenderScreen = () => {
             }}
             activeOpacity={0.8}
             style={styles.iconRow}>
-            <Text style={styles.textLabel}>Aligner Switch</Text>
+            <Text style={[styles.textLabel, {color: currentTheme.colors.text}]}>Aligner Switch</Text>
             <Shadow>
               <View style={styles.iconButtonContainer}>
-                <Icons.SYNC />
+                <Icons.SYNC fill={currentTheme.colors.icon} />
               </View>
             </Shadow>
           </TouchableOpacity>
@@ -103,10 +109,10 @@ const CalenderScreen = () => {
             }}
             activeOpacity={0.8}
             style={styles.iconRow}>
-            <Text style={styles.textLabel}>Ortho Appoinment</Text>
+            <Text style={[styles.textLabel, { color: currentTheme.colors.text }]}>Ortho Appointment</Text>
             <Shadow>
               <View style={styles.iconButtonContainer}>
-                <Icons.STAR />
+                <Icons.STAR fill={currentTheme.colors.icon} />
               </View>
             </Shadow>
           </TouchableOpacity>
@@ -117,10 +123,10 @@ const CalenderScreen = () => {
             }}
             activeOpacity={0.8}
             style={styles.iconRow}>
-            <Text style={styles.textLabel}>Notes</Text>
+            <Text style={[styles.textLabel, {color: currentTheme.colors.text}]}>Notes</Text>
             <Shadow>
               <View style={styles.iconButtonContainer}>
-                <Icons.FOLDER />
+                <Icons.FOLDER fill={currentTheme.colors.icon} />
               </View>
             </Shadow>
           </TouchableOpacity>
@@ -128,7 +134,7 @@ const CalenderScreen = () => {
             onPress={togglePlus}
             activeOpacity={0.8}
             style={styles.downIconContainer}>
-            <Icons.DOWNARROW />
+            <Icons.DOWNARROW fill={currentTheme.colors.icon} />
           </TouchableOpacity>
         </View>
       ) : (
@@ -138,6 +144,7 @@ const CalenderScreen = () => {
             onMonthChange={handleMonthChange}
             hideArrows={true}
             minDate={todayDate}
+            
             hideExtraDays={true}
             enableSwipeMonths={true}
             renderHeader={() => (
@@ -145,18 +152,20 @@ const CalenderScreen = () => {
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={() => navigation.openDrawer()}>
-                  <Icons.MENU height={20} width={20} />
+                  <Icons.MENU height={20} width={20} fill={currentTheme.colors.icon} />
                 </TouchableOpacity>
-                <Text style={styles.currentMonth}>{currentMonth}</Text>
-                <Icons.CALENDER height={25} />
+                <Text style={[styles.currentMonth, {color: currentTheme.colors.text}]}>{currentMonth}</Text>
+                <Icons.CALENDER height={25} fill={currentTheme.colors.icon} />
               </View>
             )}
             theme={{
-              textSectionTitleColor: '#000000',
+              textSectionTitleColor: currentTheme.colors.text, // Updated text color
               selectedDayBackgroundColor: '#42afd2',
               selectedDayTextColor: '#fff',
               todayTextColor: '#00adf5',
-              dayTextColor: '#000',
+              calendarBackground: currentTheme.isDark ? 'dark' : 'light',
+              dayTextColor: currentTheme.colors.text,
+               // Updated day text color
               textDayHeaderFontSize: 16,
               textDisabledColor: '#c2c8c8',
             }}
@@ -169,10 +178,10 @@ const CalenderScreen = () => {
             }}
           />
           <View style={styles.infoBar}>
-            <Text style={styles.totalText}>Total: {'<'} 1 min</Text>
+            <Text style={[styles.totalText, { color: currentTheme.colors.text }]}>Total: {'<'} 1 min</Text> // Updated text color
             <Text 
             onPress={()=>navigation.navigate('AdjustCurrentTreatment')}
-            style={styles.alignerText}>Aligner #1</Text>
+            style={[styles.alignerText, { color: currentTheme.colors.text }]}>Aligner #1</Text> // Updated text color
           </View>
           {note && (
             <View
@@ -184,21 +193,17 @@ const CalenderScreen = () => {
                 borderBottomWidth: 2,
                 borderColor: COLORS.GRAY,
               }}>
-              <Icons.FOLDER />
+              <Icons.FOLDER fill={currentTheme.colors.icon} />
               <Text
                 style={{
                   fontFamily: 'Roboto-Regular',
                   fontSize: 17,
-                  color: COLORS.BLACK,
+                  color: currentTheme.colors.text, // Updated text color
                 }}>
                 {note}
               </Text>
             </View>
           )}
-          {/* <View style={styles.detailsBar}>
-            <Icons.LIKE />
-            <Text style={styles.detailsText}>15 hr 50 min</Text>
-          </View> */}
           <TouchableOpacity
             onPress={togglePlus}
             activeOpacity={0.8}
@@ -216,7 +221,7 @@ export default CalenderScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.WHITE,
+    backgroundColor: COLORS.WHITE, // This can be removed as it's now handled by currentTheme
   },
   calendarHeader: {
     flexDirection: 'row',

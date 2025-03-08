@@ -1,4 +1,4 @@
-const LightTheme: {
+const Light: {
     isDark:boolean;
     colors:{
         background:string,
@@ -6,6 +6,7 @@ const LightTheme: {
       tabbarBackground: string,
       tabbarActiveColor: string,
       tabbarInactiveColor: string,
+      icon: string,
     }
 } = {
     isDark: false,
@@ -15,7 +16,8 @@ const LightTheme: {
       tabbarBackground: '#FFF',
       tabbarActiveColor: 'orange',
       tabbarInactiveColor: '#000',
+      icon: '#000',
     },
   };
   
-  export default LightTheme;
+  export default Light;

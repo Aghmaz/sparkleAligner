@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
 <svg version="1.1" id="Uploaded to svgrepo.com" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
 	 width="20px" height="20px" viewBox="0 0 32 32" xml:space="preserve">
-<style type="text/css">
-	.bentblocks_een{fill:#0B1719;}
-</style>
-<path class="bentblocks_een" d="M8,9.142V4H6v5.142c-1.72,0.447-3,2-3,3.858c0,1.858,1.28,3.411,3,3.858v10.096h2V16.858
+
+<path fill="#000" d="M8,9.142V4H6v5.142c-1.72,0.447-3,2-3,3.858c0,1.858,1.28,3.411,3,3.858v10.096h2V16.858
 	c1.72-0.447,3-2,3-3.858C11,11.142,9.72,9.589,8,9.142z M7,15c-1.105,0-2-0.895-2-2c0-1.105,0.895-2,2-2s2,0.895,2,2
 	C9,14.105,8.105,15,7,15z M17,16.142V10V4h-2v6v6.142c-1.72,0.447-3,2-3,3.858c0,1.858,1.28,3.411,3,3.858v3.096h2v-3.096
 	c1.72-0.447,3-2,3-3.858C20,18.142,18.72,16.589,17,16.142z M16,22c-1.105,0-2-0.895-2-2c0-1.105,0.895-2,2-2s2,0.895,2,2

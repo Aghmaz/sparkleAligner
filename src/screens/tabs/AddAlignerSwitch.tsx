@@ -12,10 +12,15 @@ import {useNavigation, NavigationProp} from '@react-navigation/native';
 import DatePicker from 'react-native-date-picker';
 import COLORS from '../../constraints/colors';
 import Icons from '../../assets/icons';
+import {useTheme} from '../../theme/themeManagement';
+import LightTheme from '../../theme/LightTheme';
+import DarkTheme from '../../theme/DarkTheme';
 
 type NavigationProps = NavigationProp<any>;
 
 const AddAlignerSwitch: React.FC = () => {
+  const {theme} = useTheme();
+  const currentTheme = theme === 'light' ? LightTheme : DarkTheme;
   const navigation = useNavigation<NavigationProps>();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [selectedAligner, setSelectedAligner] = useState<number>(0);
@@ -80,14 +85,20 @@ const AddAlignerSwitch: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: currentTheme.colors.background},
+      ]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={handleBackNavigation} activeOpacity={0.8}>
-          <Icons.CROSS />
+          <Icons.CROSS fill={currentTheme.colors.icon} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Add Aligner Switch</Text>
+        <Text style={[styles.headerText, {color: currentTheme.colors.text}]}>
+          Add Aligner Switch
+        </Text>
         <TouchableOpacity onPress={handleBackNavigation} activeOpacity={0.8}>
-          <Icons.TICK />
+          <Icons.TICK fill={currentTheme.colors.icon} />
         </TouchableOpacity>
       </View>
       <View style={styles.contentContainer}>
@@ -96,20 +107,28 @@ const AddAlignerSwitch: React.FC = () => {
           activeOpacity={0.8}
           style={styles.row}>
           <View style={styles.rowLeft}>
-            <Icons.CALENDER />
-            <Text style={styles.rowTitle}>When?</Text>
+            <Icons.CALENDER fill={currentTheme.colors.icon} />
+            <Text style={[styles.rowTitle, {color: currentTheme.colors.text}]}>
+              When?
+            </Text>
           </View>
-          <Text style={styles.rowTime}>{formatDate(date)}</Text>
+          <Text style={[styles.rowTime, {color: currentTheme.colors.text}]}>
+            {formatDate(date)}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setModalVisible(true)}
           activeOpacity={0.8}
           style={styles.row}>
           <View style={styles.rowLeft}>
-            <Icons.SYNC />
-            <Text style={styles.rowTitle}>Switched To</Text>
+            <Icons.SYNC fill={currentTheme.colors.icon} />
+            <Text style={[styles.rowTitle, {color: currentTheme.colors.text}]}>
+              Switched To
+            </Text>
           </View>
-          <Text style={styles.alignerNo}>{displayedAligner}</Text>
+          <Text style={[styles.alignerNo, {color: currentTheme.colors.text}]}>
+            {displayedAligner}
+          </Text>
         </TouchableOpacity>
       </View>{' '}
       {showDatePicker && (
@@ -117,7 +136,7 @@ const AddAlignerSwitch: React.FC = () => {
           modal
           open={showDatePicker}
           date={date}
-           theme='light'
+          theme={currentTheme.isDark ? 'dark' : 'light'}
           onConfirm={selectedDate => handleDateChange(selectedDate)}
           onCancel={() => setShowDatePicker(false)}
           mode="datetime"
@@ -130,7 +149,10 @@ const AddAlignerSwitch: React.FC = () => {
       <Modal transparent={true} animationType="slide" visible={modalVisible}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Which aligner did you switch to?</Text>
+            <Text
+              style={[styles.modalTitle, {color: currentTheme.colors.text}]}>
+              Which aligner did you switch to?
+            </Text>
             <ScrollView
               ref={scrollViewRef}
               showsVerticalScrollIndicator={false}
@@ -158,6 +180,7 @@ const AddAlignerSwitch: React.FC = () => {
                           selectedAligner === index - 1
                             ? 1
                             : 0.5,
+                        color: currentTheme.colors.text,
                       },
                     ]}>
                     {alignerText}
@@ -168,10 +191,12 @@ const AddAlignerSwitch: React.FC = () => {
             <View style={styles.btnsConatiner}>
               <Text
                 onPress={() => setModalVisible(false)}
-                style={styles.btnText}>
+                style={[styles.btnText, {color: currentTheme.colors.text}]}>
                 CANCEL
               </Text>
-              <Text onPress={handleConfirm} style={styles.btnText}>
+              <Text
+                onPress={handleConfirm}
+                style={[styles.btnText, {color: currentTheme.colors.text}]}>
                 CONFIRM
               </Text>
             </View>

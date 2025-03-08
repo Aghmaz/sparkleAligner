@@ -1,4 +1,4 @@
-const DarkTheme :{
+const Dark :{
     isDark: boolean,
     colors: {
       background: string,
@@ -6,6 +6,7 @@ const DarkTheme :{
       tabbarBackground: string,
       tabbarActiveColor: string,
       tabbarInactiveColor: string,
+      icon : string,
     },
   }= {
     isDark: true,
@@ -15,7 +16,8 @@ const DarkTheme :{
       tabbarBackground: '#262626',
       tabbarActiveColor: 'orange',
       tabbarInactiveColor: '#FFF',
+      icon: '#ffffff',
     },
   };
   
-  export default DarkTheme;
+  export default Dark;
