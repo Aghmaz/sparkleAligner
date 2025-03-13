@@ -194,7 +194,7 @@ const DrawerItem: React.FC<{icon: React.ComponentType; text: string}> = ({
 
   return (
     <View style={[styles.drawerItemContainer]}>
-      <Icon fill={currentTheme.colors.icon} />
+      {/* <Icon fill={currentTheme.colors.icon} /> */}
       <Text style={[styles.drawerItemText, {color: currentTheme.colors.text}]}>
         {text}
       </Text>

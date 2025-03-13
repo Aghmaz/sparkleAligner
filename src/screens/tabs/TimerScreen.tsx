@@ -12,6 +12,7 @@ import {
   TextInput,
   TouchableWithoutFeedback,
 } from 'react-native';
+import WebSocketService from '../../services/websocketService';
 import {AnimatedCircularProgress} from 'react-native-circular-progress';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
 import {useNavigation} from '@react-navigation/native';
@@ -23,6 +24,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../../theme/themeManagement';
 import LightTheme from '../../theme/LightTheme';
 import DarkTheme from '../../theme/DarkTheme';
+import Chat from '../../components/chat';
 
 
 
@@ -459,6 +461,19 @@ const TimerScreen: React.FC = () => {
     scrollToBottom();
   };
 
+
+  const initSocket = async () => {
+    console.log("timer Screen on");
+    const userId = await AsyncStorage.getItem('userId');
+    console.log("userId============",userId);
+    if (userId) {
+      WebSocketService.connect('67ba24eb1431a3c93ab1d9e7');
+    } else {
+      console.error("User ID not found");
+    }
+  };
+  initSocket();
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: currentTheme.colors.background }]}>
       <View style={{height: '100%'}}>
@@ -604,10 +619,10 @@ const TimerScreen: React.FC = () => {
           }}>
           <Shadow>
             <TouchableOpacity
-              onPress={() => setIsChatModalOpen(true)}
+              onPress={() =>setIsChatModalOpen(true)}
               activeOpacity={0.8}
               style={styles.shadowButton}>
-              <Icons.CHAT  />
+              <Icons.CHAT fill={currentTheme.colors.icon} />
             </TouchableOpacity>
           </Shadow>
         </View>
@@ -813,60 +828,7 @@ const TimerScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-      <Modal transparent={true} visible={isChatModalOpen} animationType="slide">
-        <TouchableWithoutFeedback onPress={() => setIsChatModalOpen(false)}>
-          <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback>
-              <View
-                style={{
-                  backgroundColor: currentTheme.colors.background,
-                  borderRadius: 12,
-                  height: '80%',
-                  paddingHorizontal: 10,
-                }}>
-                <View style={styles.chatHeader}>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => setIsChatModalOpen(false)}>
-                    <Icons.BACKARROW fill={currentTheme.colors.icon} />
-                  </TouchableOpacity>
-                  <Text style={[styles.headerTitle, { color: currentTheme.colors.text }]}>Chat Support</Text>
-                </View>
-                <FlatList
-                  ref={flatListRef}
-                  data={messages}
-                  showsVerticalScrollIndicator={false}
-                  renderItem={renderItem}
-                  keyExtractor={item => item.id}
-                  getItemLayout={(data, index) => ({
-                    length: 100,
-                    offset: 100 * index,
-                    index,
-                  })}
-                />
-                <View style={styles.inputContainer}>
-                  <TextInput
-                    multiline
-                    numberOfLines={5}
-                    style={[styles.textInput, { borderColor: currentTheme.colors.text }]}
-                    placeholder="Type your message..."
-                    value={messageText}
-                    onChangeText={setMessageText}
-                    placeholderTextColor={currentTheme.colors.text}
-                    onFocus={handleInputFocus}
-                  />
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    style={styles.sendButton}
-                    onPress={handleSend}>
-                    <Icons.SEND fill={currentTheme.colors.icon} />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+      <Chat isChatModalOpen={isChatModalOpen} setIsChatModalOpen={setIsChatModalOpen} />
       <Modal
         animationType="slide"
         transparent={true}

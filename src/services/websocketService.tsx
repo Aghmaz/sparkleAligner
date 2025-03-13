@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import io, {Socket} from 'socket.io-client';
+import io, {connect, Socket} from 'socket.io-client';
 
-const API_URL = 'http://192.168.86.134:8000';
+const API_URL = 'http://192.168.1.109:8000';
+const socketUrl = 'http://192.168.1.109.104:8000';
 
 class WebSocketService {
   socket: Socket | null = null;
@@ -27,7 +28,7 @@ class WebSocketService {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       });
-
+      console.log('response is starting');
       const response = await fetch(`${API_URL}/conversation`, {
         method: 'POST',
         headers: {
@@ -36,7 +37,7 @@ class WebSocketService {
         },
         body: JSON.stringify({members}),
       });
-
+      console.log('response is ending');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -69,7 +70,17 @@ class WebSocketService {
       if (!token) {
         throw new Error('No authentication token found');
       }
+      console.log('=====================??????=======================');
 
+      console.log(
+        sender,
+        'sender',
+        conversationId,
+        'conversationId',
+        text,
+        'text',
+      );
+      console.log('=====================??????=======================');
       const response = await fetch(`${API_URL}/message/send`, {
         method: 'POST',
         headers: {
@@ -82,7 +93,9 @@ class WebSocketService {
           text,
         }),
       });
-
+      console.log('============================================');
+      console.log(response, '---------------------');
+      console.log('============================================');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -123,10 +136,9 @@ class WebSocketService {
       throw error;
     }
   }
-
   // Socket methods
   connect(userId: string): void {
-    this.socket = io(API_URL, {
+    this.socket = connect(socketUrl, {
       query: {userId},
     });
 

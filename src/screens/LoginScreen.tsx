@@ -45,13 +45,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
     };
     try {
       const response = await axios.post(
-        'http://192.168.1.101:8000/api/auth/login',
+        'http://192.168.1.109:8000/api/auth/login',
         payload,
       );
       if (response.status === 200) {
         const {token, role, id} = response.data;
         console.log('Login Successfully');
         console.log('Token', token);
+        console.log('response hai yeh', response);
         console.log('ID', id);
         await AsyncStorage.setItem('userId', id);
         await AsyncStorage.setItem('Token', token);
