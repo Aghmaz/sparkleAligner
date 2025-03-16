@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "615343035817",
+    "project_id": "sparklealigner",
+    "storage_bucket": "sparklealigner.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615343035817:android:27a7e1d68f547c122f60b8",
+        "android_client_info": {
+          "package_name": "com.sparkaligner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzQh2bF64dMT8CkDPPAiNr2A80xJSVO2Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
