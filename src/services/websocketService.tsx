@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import io, {connect, Socket} from 'socket.io-client';
 
-const API_URL = 'http://192.168.1.109:8000';
-const socketUrl = 'http://192.168.1.109.104:8000';
+const API_URL = 'http://192.168.43.112:8000';
+const socketUrl = 'http://192.168.43.112:8000';
 
 class WebSocketService {
   socket: Socket | null = null;

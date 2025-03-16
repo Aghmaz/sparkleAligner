@@ -16,16 +16,6 @@ import WebSocketService from './src/services/websocketService';
 function MainApp() {
   const {theme} = useTheme();
 
-  const initSocket = async () => {
-    console.log("timer Screen on");
-    const userId = await AsyncStorage.getItem('userId');
-    console.log("userId============",userId);
-    if (userId) {
-      WebSocketService.connect('67ba24eb1431a3c93ab1d9e7');
-    } else {
-      console.error("User ID not found");
-    }
-  };
   // Choose navigation theme based on our custom theme.
   // Here we use react-navigation's default themes for simplicity.
   const navigationTheme: NavigationTheme =
@@ -48,20 +38,10 @@ function App() {
       // …perform multiple sync or async tasks if needed
     };
 
-  const initSocket = async () => {
-    console.log("timer Screen on");
-    const userId = await AsyncStorage.getItem('userId');
-    console.log("userId============",userId);
-    if (userId) {
-      WebSocketService.connect('67ba24eb1431a3c93ab1d9e7');
-    } else {
-      console.error("User ID not found");
-    }
-  };
+
     init().finally(async () => {
       await BootSplash.hide({fade: true});
-      initSocket();
-    console.log('BootSplash has been hidden successfully');
+       console.log('BootSplash has been hidden successfully');
     });
   }, []);
 
