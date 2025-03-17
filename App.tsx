@@ -75,7 +75,7 @@ function App() {
 
     // Subscribe to foreground messages
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-   
+    //  Alert.alert('A new FCM message arrived!');
       onDisplayNotification(remoteMessage);
     });
 
