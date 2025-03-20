@@ -106,7 +106,7 @@ userId();
 // Hardcode support agent as the only chat partner
 const agentId = '67ba1c0e0bab5a0c9f2bf65e';
 
-const socket = io('http://192.168.1.101:8000', {
+const socket = io('http://192.168.1.108:8000', {
   query: {userId: USER_ID ? USER_ID : '67ba24eb1431a3c93ab1d9e7'},
 });
 
