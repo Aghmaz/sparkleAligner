@@ -12,7 +12,7 @@ import {
   TextInput,
   TouchableWithoutFeedback,
 } from 'react-native';
-import WebSocketService from '../../services/websocketService';
+import {width, height} from "../../constants/dimensions"
 import {AnimatedCircularProgress} from 'react-native-circular-progress';
 import {DrawerNavigationProp} from '@react-navigation/drawer';
 import {useNavigation} from '@react-navigation/native';
@@ -27,7 +27,6 @@ import DarkTheme from '../../theme/DarkTheme';
 import Chat from '../../components/chat';
 import notifee, {AndroidImportance, TriggerType} from '@notifee/react-native';
 
-const {width} = Dimensions.get('window');
 const circularProgressSize = width * 0.812;
 const indicatorPosition = (20 / 24) * 360;
 
@@ -434,7 +433,7 @@ const TimerScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: currentTheme.colors.background}]}>
-      <View style={{height: '100%'}}>
+      <ScrollView style={{height: '100%'}}>
         <TouchableOpacity
           onPress={() => navigation.openDrawer()}
           activeOpacity={0.8}
@@ -546,6 +545,7 @@ const TimerScreen: React.FC = () => {
           <View style={styles.progressIndicatorLine} />
           <Text style={styles.progressIndicatorText}>20</Text>
         </View>
+        
         <View style={styles.daysToSmileContainer}>
           <Icons.CALENDER fill={currentTheme.colors.icon} />
           <Text style={[styles.daysToSmileText, {color: currentTheme.colors.text}]}>
@@ -568,7 +568,7 @@ const TimerScreen: React.FC = () => {
             </TouchableOpacity>
           </Shadow>
         </View>
-      </View>
+      </ScrollView>
       <Modal transparent={true} animationType="slide" visible={modalVisible}>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContainer, {backgroundColor: currentTheme.colors.background}]}>
@@ -799,9 +799,15 @@ const styles = StyleSheet.create({
   daysLeftContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+
+    backgroundColor: COLORS.WHITE,
     gap: 10,
     justifyContent: 'center',
-    paddingTop: 50,
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: COLORS.BLUE_DARK,
+    marginTop: height * 0.02,  
+    padding: width * 0.035,
   },
   daysLeftText: {
     fontFamily: 'Roboto-Medium',

@@ -1,5 +1,5 @@
 // src/navigation/index.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -10,6 +10,7 @@ import {useTheme} from '../theme/themeManagement';
 import LoginScreen from '../screens/LoginScreen';
 import OnBoardScreen from '../screens/OnBoardScreen';
 import TimerScreen from '../screens/tabs/TimerScreen';
+import TimerTesting, { TimerState } from '../screens/tabs/TimerTesting';
 import CalenderScreen from '../screens/tabs/CalenderScreen';
 import FAQ from '../screens/drawer/FAQ';
 import AdjustCurrentTreatment from '../screens/drawer/AdjustCurrentTreatment';
@@ -26,6 +27,8 @@ import Icons from '../assets/icons';
 import LightTheme from '../theme/LightTheme';
 import DarkTheme from '../theme/DarkTheme';
 import COLORS from '../constraints/colors';
+import TimerCircle from '../screens/tabs/TimerTesting';
+import AlignerTimer from '../components/TimerScreenComponent';
 
 type RootStackParamList = {
   OnBoard: undefined;
@@ -43,6 +46,28 @@ const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
 const TabNavigator: React.FC = () => {
+
+  const [timerState, setTimerState] = useState<TimerState>({
+    wearing: true,
+    minutes: 1,
+    seconds: 46,
+    outSeconds: 6,
+    progress: 0.75,
+  });
+
+  const toggleWearing = () => {
+    setTimerState((prev: TimerState) => ({ ...prev, wearing: !prev.wearing }));
+  };
+
+  const TimerScreen1: React.FC = (props) => (
+    <TimerCircle
+      {...props}
+      timerState={timerState}
+      toggleWearing={toggleWearing}
+    />
+  );
+  
+
   const {theme} = useTheme();
   const currentTheme = theme === 'light' ? LightTheme : DarkTheme;
 
@@ -59,8 +84,7 @@ const TabNavigator: React.FC = () => {
       }}>
       <Tab.Screen
         name="Timer"
-        component={TimerScreen}
-        options={{
+        component={AlignerTimer}         options={{
           tabBarIcon: ({focused}) =>
             focused ? (
               <View

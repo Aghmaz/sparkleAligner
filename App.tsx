@@ -14,8 +14,13 @@ import { ThemeProvider, useTheme } from './src/theme/themeManagement';
 import { PermissionsAndroid, Alert } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { createStackNavigator } from '@react-navigation/stack';
 // Define the notification display function as a declaration so it’s hoisted.
+
+
+
 async function onDisplayNotification(remoteMessage) {
   try {
     // Create a channel (required for Android)
@@ -50,10 +55,16 @@ function MainApp() {
     theme === 'dark' ? DarkTheme : DefaultTheme;
 
   return (
+
+
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <NavigationContainer theme={navigationTheme}>
       <AppNavigator />
       <Toast />
     </NavigationContainer>
+    </GestureHandlerRootView>
+   
+
   );
 }
 
@@ -85,9 +96,12 @@ function App() {
 
   // Wrap your application with the ThemeProvider
   return (
+
+ 
     <ThemeProvider>
       <MainApp />
     </ThemeProvider>
+  
   );
 }
 
